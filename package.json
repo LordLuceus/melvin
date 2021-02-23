@@ -1,0 +1,17 @@
+{
+  "name": "melvin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "eris": "^0.14.0",
+    "rpg-dice-roller": "^4.5.2"
+  }
+}
