@@ -8,7 +8,7 @@ const melvin = new Eris.CommandClient(
   {
     description: "A simple but powerful RPG dice bot for Discord",
     owner: "LordLuceus",
-    prefix: "/"
+    prefix: "?"
   }
 );
 
