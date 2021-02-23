@@ -12,15 +12,22 @@ const melvin = new Eris.CommandClient(
   }
 );
 
-melvin.on("ready", () => {
-  console.log("Ready to roll!");
+const setStatus = () => {
   const servers = melvin.guilds.map((guild) => guild.id);
   const statusString =
     servers.length === 1
       ? "dice games in 1 server."
       : `dice games in ${servers.length} servers.`;
   melvin.editStatus(null, { name: statusString });
+};
+
+melvin.on("ready", () => {
+  console.log("Ready to roll!");
+  setStatus();
 });
+
+melvin.on("guildCreate", setStatus);
+melvin.on("guildDelete", setStatus);
 
 melvin.registerCommandAlias("info", "help");
 melvin.registerCommandAlias("about", "help");
