@@ -1,3 +1,4 @@
+const fs = require("fs");
 const dotenv = require("dotenv").config();
 const Eris = require("eris");
 const { DiceRoll } = require("rpg-dice-roller");
@@ -21,13 +22,47 @@ const setStatus = () => {
   melvin.editStatus(null, { name: statusString });
 };
 
+const storePrefixes = (prefixes) => {
+  fs.writeFileSync("./log/prefixes.json", JSON.stringify(prefixes));
+};
+
+const getPrefixes = () => {
+  return JSON.parse(
+    fs.readFileSync("./log/prefixes.json", { encoding: "utf8" })
+  );
+};
+
+const storeGuilds = (guilds) => {
+  const guildsArray = guilds.map((guild) => guild);
+  fs.writeFileSync("./log/guilds.json", JSON.stringify(guildsArray, null, 2));
+};
+
 melvin.on("ready", () => {
   console.log("Ready to roll!");
   setStatus();
+  try {
+    fs.accessSync("./log/prefixes.json"); // We have some prefixes stored.
+    melvin.guildPrefixes = getPrefixes();
+  } catch (e) {
+    // We don't have prefixes stored.
+    storePrefixes(melvin.guildPrefixes);
+  }
+  try {
+    fs.accessSync("./log/guilds.json");
+  } catch (e) {
+    storeGuilds(melvin.guilds);
+  }
 });
 
-melvin.on("guildCreate", setStatus);
-melvin.on("guildDelete", setStatus);
+melvin.on("guildCreate", () => {
+  setStatus();
+  storeGuilds(melvin.guilds);
+});
+
+melvin.on("guildDelete", () => {
+  setStatus();
+  storeGuilds(melvin.guilds);
+});
 
 melvin.registerCommandAlias("info", "help");
 melvin.registerCommandAlias("about", "help");
@@ -51,7 +86,7 @@ const rollCommand = melvin.registerCommand(
   {
     description: "Roll dice",
     fullDescription: "Roll dice using standard RPG dice notation.",
-    usage: "/roll 2d6+5",
+    usage: "?roll 2d6+5",
     aliases: ["r"],
     caseInsensitive: true,
     cooldown: 1000
@@ -68,13 +103,13 @@ const prefixCommand = melvin.registerCommand(
     }
 
     melvin.registerGuildPrefix(msg.guildID, args.join(" "));
-    console.log(melvin.guildPrefixes);
+    storePrefixes(melvin.guildPrefixes);
     return `Prefix changed to ${args.join(" ")}`;
   },
   {
     description: "Change the command prefix",
     fullDescription: "Change the bot's command prefix for this server.",
-    usage: "/prefix !",
+    usage: "?prefix !",
     cooldown: 1000
   }
 );
