@@ -1,7 +1,7 @@
 const fs = require("fs");
 const dotenv = require("dotenv").config();
 const Eris = require("eris");
-const { DiceRoll } = require("rpg-dice-roller");
+const { DiceRoll, NumberGenerator } = require("rpg-dice-roller");
 
 const melvin = new Eris.CommandClient(
   process.env.BOT_TOKEN,
@@ -12,6 +12,11 @@ const melvin = new Eris.CommandClient(
     prefix: "?"
   }
 );
+
+const setEngine = () => {
+  const { engines, generator } = NumberGenerator;
+  generator.engine = engines.nodeCrypto;
+};
 
 const setStatus = () => {
   const servers = melvin.guilds.map((guild) => guild.id);
@@ -38,7 +43,7 @@ const storeGuilds = (guilds) => {
 };
 
 melvin.on("ready", () => {
-  console.log("Ready to roll!");
+  setEngine();
   setStatus();
   try {
     fs.accessSync("./log/prefixes.json"); // We have some prefixes stored.
@@ -52,6 +57,7 @@ melvin.on("ready", () => {
   } catch (e) {
     storeGuilds(melvin.guilds);
   }
+  console.log("Ready to roll!");
 });
 
 melvin.on("guildCreate", () => {
