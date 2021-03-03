@@ -1,7 +1,8 @@
 const fs = require("fs");
 const dotenv = require("dotenv").config();
 const Eris = require("eris");
-const { DiceRoll, NumberGenerator } = require("rpg-dice-roller");
+const { DiceRoll } = require("rpg-dice-roller");
+const utils = require("./utils");
 
 const melvin = new Eris.CommandClient(
   process.env.BOT_TOKEN,
@@ -13,61 +14,32 @@ const melvin = new Eris.CommandClient(
   }
 );
 
-const setEngine = () => {
-  const { engines, generator } = NumberGenerator;
-  generator.engine = engines.nodeCrypto;
-};
-
-const setStatus = () => {
-  const servers = melvin.guilds.map((guild) => guild.id);
-  const statusString =
-    servers.length === 1
-      ? "dice games in 1 server."
-      : `dice games in ${servers.length} servers.`;
-  melvin.editStatus(null, { name: statusString });
-};
-
-const storePrefixes = (prefixes) => {
-  fs.writeFileSync("./log/prefixes.json", JSON.stringify(prefixes));
-};
-
-const getPrefixes = () => {
-  return JSON.parse(
-    fs.readFileSync("./log/prefixes.json", { encoding: "utf8" })
-  );
-};
-
-const storeGuilds = (guilds) => {
-  const guildsArray = guilds.map((guild) => guild);
-  fs.writeFileSync("./log/guilds.json", JSON.stringify(guildsArray, null, 2));
-};
-
 melvin.on("ready", () => {
-  setEngine();
-  setStatus();
+  utils.setEngine();
+  melvin.editStatus(null, utils.setStatus(melvin.guilds));
   try {
     fs.accessSync("./log/prefixes.json"); // We have some prefixes stored.
-    melvin.guildPrefixes = getPrefixes();
+    melvin.guildPrefixes = utils.getPrefixes();
   } catch (e) {
     // We don't have prefixes stored.
-    storePrefixes(melvin.guildPrefixes);
+    utils.storePrefixes(melvin.guildPrefixes);
   }
   try {
     fs.accessSync("./log/guilds.json");
   } catch (e) {
-    storeGuilds(melvin.guilds);
+    utils.storeGuilds(melvin.guilds);
   }
   console.log("Ready to roll!");
 });
 
 melvin.on("guildCreate", () => {
-  setStatus();
-  storeGuilds(melvin.guilds);
+  melvin.editStatus(null, utils.setStatus(melvin.guilds));
+  utils.storeGuilds(melvin.guilds);
 });
 
 melvin.on("guildDelete", () => {
-  setStatus();
-  storeGuilds(melvin.guilds);
+  melvin.editStatus(null, setStatus(melvin.guilds));
+  utils.storeGuilds(melvin.guilds);
 });
 
 melvin.registerCommandAlias("info", "help");
