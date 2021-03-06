@@ -1,7 +1,7 @@
 const fs = require("fs");
-const melvin = require("./client");
-const { rollCommand, prefixCommand } = require("./commands");
-const utils = require("./utils");
+const melvin = require("./src/client");
+const commands = require("./src/commands");
+const utils = require("./src/utils");
 
 melvin.on("ready", () => {
   utils.setEngine();
