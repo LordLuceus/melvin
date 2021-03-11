@@ -36,4 +36,4 @@ Note that the modifiers which affect the dice rolls themselves (min, max, k etc)
 
 If you have any questions, feedback, or just want to chat, get in touch on Discord. I'm LordLuceus#7492.
 
-If you like Melvin and want to support future development, you could [buy me a coffee](https://paypal.me/luceusproductions). Thanks!
+If you like Melvin and want to support future development, you could [buy me a coffee ☕](https://paypal.me/luceusproductions). Thanks!
