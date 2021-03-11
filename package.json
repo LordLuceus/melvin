@@ -1,14 +1,26 @@
 {
   "name": "melvin",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "An advanced RPG dice bot for Discord",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "dice",
+    "bot",
+    "RPG",
+    "d&d",
+    "discord",
+    "eris",
+    "roll"
+  ],
+  "author": "LordLuceus <lord.luceus@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LordLuceus/melvin.git"
+  },
   "dependencies": {
     "dotenv": "^8.2.0",
     "eris": "^0.14.0",
