@@ -5,9 +5,9 @@ const melvin = new Eris.CommandClient(
   process.env.BOT_TOKEN,
   {},
   {
-    description: "A simple but powerful RPG dice bot for Discord",
+    description: "A powerful RPG dice bot for Discord",
     owner: "LordLuceus",
-    prefix: "?"
+    prefix: ["?", "@mention "]
   }
 );
 
