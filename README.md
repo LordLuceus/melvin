@@ -25,7 +25,7 @@ The `?roll` command is what you use to roll dice. The dice parser is very advanc
 - `?roll d20r<10` - Reroll on anything less than a 10.
 - `?roll 4d6>=4` - A 4 and above is a success.
 - `?roll 4d6=5` - Can you roll exactly a 5?
-- `?4dF` - Fudge/fate dice.
+- `?roll 4dF` - Fudge/fate dice.
 - `?roll (14+6)*17` - Do maths.
 - `?roll 8d8*2` - Do maths with dice.
 - `?roll floor(8d6/2)` - Devils are resistent to fire - half damage rounded down.
