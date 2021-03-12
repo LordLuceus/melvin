@@ -32,7 +32,7 @@ const prefixCommand = melvin.registerCommand(
   "prefix",
   (msg, args) => {
     if (args.length === 0) {
-      return "What the frig? You need to provide a prefix.";
+      return `Your prefix is ${melvin.guildPrefixes[msg.guildID] || "?"}`;
     } else if (args.length > 1) {
       return "What the frig? We only need one prefix.";
     }
