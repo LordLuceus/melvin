@@ -9,9 +9,24 @@ const rollCommand = melvin.registerCommand(
       return "What the frig? Roll something, you fool.";
     }
 
-    const rollString = args.join(" ");
+    const rollString = args.join(" ").trim().toLowerCase();
 
     try {
+      if (rollString.startsWith("repeat")) {
+        const repeat = rollString.split("(");
+        const [notation, times] = repeat[1].split(",");
+
+        const rolls = [];
+        for (let i = 0; i < parseInt(times); i++) {
+          const roll = new DiceRoll(notation);
+          rolls.push(roll.output);
+        }
+        const rollsStr = rolls.join("\n");
+        if (!rollsStr) {
+          return "What the frig? Foolish Steve! That is not a dice roll.";
+        }
+        return `${msg.author.mention}: ${rollsStr}`;
+      }
       const roll = new DiceRoll(rollString);
       return `${msg.author.mention}: ${roll.output}`;
     } catch (e) {
