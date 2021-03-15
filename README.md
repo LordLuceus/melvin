@@ -29,6 +29,7 @@ The `?roll` command is what you use to roll dice. The dice parser is very advanc
 - `?roll (14+6)*17` - Do maths.
 - `?roll 8d8*2` - Do maths with dice.
 - `?roll floor(8d6/2)` - Devils are resistent to fire - half damage rounded down.
+- `?roll repeat(4d6kh3, 6)` - Generate the standard 5e ability scores.
 
 Note that the modifiers which affect the dice rolls themselves (min, max, k etc) must come before any numerical modifiers (+4). So: `?roll 2d20kh1+9` is valid, but `?roll 2d20+9kh1` is not.
 
