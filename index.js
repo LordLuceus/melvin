@@ -1,37 +1,44 @@
-const fs = require("fs");
-const melvin = require("./src/client");
-const commands = require("./src/commands");
-const utils = require("./src/utils");
+const path = require("path");
+const { CommandoClient, SQLiteProvider } = require("discord.js-commando");
+const { token, owner, prefix } = require("./config/config.json");
+const { NumberGenerator } = require("rpg-dice-roller");
+const sqlite = require("sqlite");
+const sqlite3 = require("sqlite3");
 
-melvin.on("ready", () => {
-  utils.setEngine();
-  melvin.editStatus(null, utils.setStatus(melvin.guilds));
-  try {
-    fs.accessSync("./log/prefixes.json"); // We have some prefixes stored.
-    melvin.guildPrefixes = utils.getPrefixes();
-  } catch (e) {
-    // We don't have prefixes stored.
-    utils.storePrefixes(melvin.guildPrefixes);
-  }
-  try {
-    fs.accessSync("./log/guilds.json");
-  } catch (e) {
-    utils.storeGuilds(melvin.guilds);
-  }
+const setEngine = () => {
+  const { engines, generator } = NumberGenerator;
+  generator.engine = engines.nodeCrypto;
+};
+
+const melvin = new CommandoClient({
+  commandPrefix: prefix,
+  owner
+});
+
+melvin
+  .setProvider(
+    sqlite
+      .open({
+        filename: path.join(__dirname, "db/melvin.db"),
+        driver: sqlite3.Database
+      })
+      .then((db) => new SQLiteProvider(db))
+  )
+  .catch(console.error);
+
+melvin.registry
+  .registerGroups([["dice", "Dice Commands"]])
+  .registerDefaultTypes()
+  .registerDefaultGroups()
+  .registerDefaultCommands({ unknownCommand: false })
+  .registerCommandsIn(path.join(__dirname, "commands"));
+
+melvin.once("ready", () => {
+  setEngine();
+  melvin.user.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
   console.log("Ready to roll!");
 });
 
-melvin.on("guildCreate", () => {
-  melvin.editStatus(null, utils.setStatus(melvin.guilds));
-  utils.storeGuilds(melvin.guilds);
-});
+melvin.on("error", console.error);
 
-melvin.on("guildDelete", () => {
-  melvin.editStatus(null, setStatus(melvin.guilds));
-  utils.storeGuilds(melvin.guilds);
-});
-
-melvin.registerCommandAlias("info", "help");
-melvin.registerCommandAlias("about", "help");
-
-melvin.connect();
+melvin.login(token);
