@@ -1,6 +1,6 @@
 {
   "name": "melvin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "An advanced RPG dice bot for Discord",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "RPG",
     "d&d",
     "discord",
-    "eris",
+    "discord.js",
     "roll"
   ],
   "author": "LordLuceus <lord.luceus@gmail.com>",
@@ -22,8 +22,15 @@
     "url": "https://github.com/LordLuceus/melvin.git"
   },
   "dependencies": {
-    "dotenv": "^8.2.0",
-    "eris": "^0.14.0",
-    "rpg-dice-roller": "^4.5.2"
+    "bufferutil": "^4.0.3",
+    "discord.js": "^12.5.1",
+    "discord.js-commando": "github:discordjs/commando",
+    "erlpack": "github:discord/erlpack",
+    "ms": "^2.1.3",
+    "rpg-dice-roller": "^4.5.2",
+    "sqlite": "^4.0.19",
+    "sqlite3": "^5.0.2",
+    "utf-8-validate": "^5.0.4",
+    "zlib-sync": "^0.1.7"
   }
 }
