@@ -41,4 +41,12 @@ melvin.once("ready", () => {
 
 melvin.on("error", console.error);
 
+melvin.on("guildCreate", () => {
+  melvin.user.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
+});
+
+melvin.on("guildDelete", () => {
+  melvin.user.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
+});
+
 melvin.login(token);
