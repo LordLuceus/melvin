@@ -34,6 +34,8 @@ Note that the modifiers which affect the dice rolls themselves (min, max, k etc)
 
 You can also use the `?multiroll` or `?rr` command to roll dice multiple times, like this: `?rr 6 4d6kh3`. This will effectively generate a standard set of D&D 5e ability scores.
 
+The `?average` or `?avg` command will return the average total for the provided dice roll. E.G. `?avg 4d6` will return `14`.
+
 ### Support
 
 If you have any questions, feedback, or just want to chat, get in touch on Discord. I'm LordLuceus#7492.
