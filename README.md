@@ -8,7 +8,7 @@
 
 You can type `?help` to get a brief overview of the commands. Melvin's default prefix is `?`, but just mentioning him will work as well. You can change the prefix with the `?prefix` command, e.g. `?prefix !`. Issuing this command without any arguments will output the current prefix for your server.
 
-`?roll` is the main dice rolling command. The dice parser is very advanced and supports many different types of dice notation. Here are some examples of what you can do:
+`roll` is the main dice rolling command. The dice parser is very advanced and supports many different types of dice notation. Here are some examples of what you can do:
 
 - `?roll d20` - The standard die roll. You can roll up to 999 dice with any number of sides.
 - `?roll 4d8+5` - Roll dice with a modifier.
@@ -32,9 +32,9 @@ You can type `?help` to get a brief overview of the commands. Melvin's default p
 
 Note that the modifiers which affect the dice rolls themselves (min, max, k etc) must come before any numerical modifiers (+4). So: `?roll 2d20kh1+9` is valid, but `?roll 2d20+9kh1` is not.
 
-You can also use the `?multiroll` or `?rr` command to roll dice multiple times, like this: `?rr 6 4d6kh3`. This will effectively generate a standard set of D&D 5e ability scores.
+You can also use the `multiroll` or `rr` command to roll dice multiple times, like this: `?rr 6 4d6kh3`. This will effectively generate a standard set of D&D 5e ability scores.
 
-The `?average` or `?avg` command will return the average total for the provided dice roll. E.G. `?avg 4d6` will return `14`.
+The `average` or `avg` command will return the average total for the provided dice roll. E.G. `?avg 4d6` will return `14`. Likewise, the `min` and `max` will give you the minimum and maximum totals respectively.
 
 ### Support
 
