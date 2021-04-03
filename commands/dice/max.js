@@ -12,15 +12,15 @@ module.exports = class MaxCommand extends Command {
       examples: ["?max 16d6"],
       throttling: {
         usages: 1,
-        duration: 3
+        duration: 3,
       },
       args: [
         {
           key: "notation",
           prompt: "What the frig? I require dice, you fool!",
-          type: "string"
-        }
-      ]
+          type: "string",
+        },
+      ],
     });
   }
 
