@@ -1,9 +1,9 @@
 const path = require("path");
 const { CommandoClient, SQLiteProvider } = require("discord.js-commando");
-const { token, owner, prefix } = require("./config/config.json");
 const { NumberGenerator } = require("rpg-dice-roller");
 const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
+const { token, owner, prefix } = require("./config/config.json");
 
 const setEngine = () => {
   const { engines, generator } = NumberGenerator;
@@ -12,7 +12,7 @@ const setEngine = () => {
 
 const melvin = new CommandoClient({
   commandPrefix: prefix,
-  owner
+  owner,
 });
 
 melvin
@@ -20,7 +20,7 @@ melvin
     sqlite
       .open({
         filename: path.join(__dirname, "db/melvin.db"),
-        driver: sqlite3.Database
+        driver: sqlite3.Database,
       })
       .then((db) => new SQLiteProvider(db))
   )
