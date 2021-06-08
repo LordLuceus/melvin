@@ -27,7 +27,7 @@
     "discord.js-commando": "github:discordjs/commando",
     "erlpack": "github:discord/erlpack",
     "ms": "^2.1.3",
-    "rpg-dice-roller": "^4.5.2",
+    "rpg-dice-roller": "^5.0.0",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2",
     "utf-8-validate": "^5.0.5",
