@@ -30,7 +30,7 @@
     "rpg-dice-roller": "^4.5.2",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2",
-    "utf-8-validate": "^5.0.4",
+    "utf-8-validate": "^5.0.5",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
