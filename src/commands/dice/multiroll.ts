@@ -1,7 +1,7 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 import { DiceRoll } from "rpg-dice-roller";
 
-export class MultirollCommand extends Command {
+export default class MultirollCommand extends Command {
   constructor(client: CommandoClient) {
     super(client, {
       name: "multiroll",
