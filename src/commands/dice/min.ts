@@ -1,8 +1,8 @@
-const { Command } = require("discord.js-commando");
-const { DiceRoll } = require("rpg-dice-roller");
+import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
+import { DiceRoll } from "rpg-dice-roller";
 
-module.exports = class MinCommand extends Command {
-  constructor(client) {
+export class MinCommand extends Command {
+  constructor(client: CommandoClient) {
     super(client, {
       name: "minimum",
       aliases: ["min"],
@@ -12,26 +12,26 @@ module.exports = class MinCommand extends Command {
       examples: ["?min 16d6"],
       throttling: {
         usages: 1,
-        duration: 3
+        duration: 3,
       },
       args: [
         {
           key: "notation",
           prompt: "What the frig? I require dice, you fool!",
-          type: "string"
-        }
-      ]
+          type: "string",
+        },
+      ],
     });
   }
 
-  run(message, { notation }) {
+  run(message: CommandoMessage, { notation }: { notation: string }) {
     const roll = new DiceRoll(notation);
     return message.reply(roll.minTotal);
   }
 
-  onError(err, message) {
+  onError(err: Error, message: CommandoMessage) {
     return message.reply(
       "What the frig? Foolish Steve! That is not a dice roll."
     );
   }
-};
+}
