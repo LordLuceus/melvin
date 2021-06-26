@@ -1,7 +1,7 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 import { DiceRoll } from "rpg-dice-roller";
 
-export class MaxCommand extends Command {
+export default class MaxCommand extends Command {
   constructor(client: CommandoClient) {
     super(client, {
       name: "maximum",

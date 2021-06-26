@@ -1,7 +1,7 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 import ms from "ms";
 
-export class StatsCommand extends Command {
+export default class StatsCommand extends Command {
   constructor(client: CommandoClient) {
     super(client, {
       name: "stats",
