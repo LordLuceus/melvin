@@ -34,10 +34,14 @@
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
+    "@types/ms": "^0.7.31",
+    "@types/node": "^15.12.4",
+    "@types/sqlite3": "^3.1.7",
     "eslint": "^7.29.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
-    "prettier": "^2.3.1"
+    "prettier": "^2.3.1",
+    "typescript": "^4.3.4"
   }
 }

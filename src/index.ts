@@ -1,9 +1,9 @@
-const path = require("path");
-const { CommandoClient, SQLiteProvider } = require("discord.js-commando");
-const { NumberGenerator } = require("rpg-dice-roller");
-const sqlite = require("sqlite");
-const sqlite3 = require("sqlite3");
-const { token, owner, prefix } = require("./config/config.json");
+import { CommandoClient, SQLiteProvider } from "discord.js-commando";
+import path from "path";
+import { NumberGenerator } from "rpg-dice-roller";
+import { open } from "sqlite";
+import sqlite3 from "sqlite3";
+import { owner, prefix, token } from "./config/config.json";
 
 const setEngine = () => {
   const { engines, generator } = NumberGenerator;
@@ -17,12 +17,10 @@ const melvin = new CommandoClient({
 
 melvin
   .setProvider(
-    sqlite
-      .open({
-        filename: path.join(__dirname, "db/melvin.db"),
-        driver: sqlite3.Database,
-      })
-      .then((db) => new SQLiteProvider(db))
+    open({
+      filename: path.join(process.cwd(), "src/db/melvin.db"),
+      driver: sqlite3.Database,
+    }).then((db) => new SQLiteProvider(db))
   )
   .catch(console.error);
 
@@ -35,18 +33,18 @@ melvin.registry
 
 melvin.once("ready", () => {
   setEngine();
-  melvin.user.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
+  melvin.user?.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
   console.log("Ready to roll!");
 });
 
 melvin.on("error", console.error);
 
 melvin.on("guildCreate", () => {
-  melvin.user.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
+  melvin.user?.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
 });
 
 melvin.on("guildDelete", () => {
-  melvin.user.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
+  melvin.user?.setActivity(`dice in ${melvin.guilds.cache.size} servers.`);
 });
 
 melvin.login(token);
