@@ -1,5 +1,5 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { DiceRoll } from "rpg-dice-roller";
+import { rollDice } from "../../util/roll-dice";
 
 export default class MultirollCommand extends Command {
   constructor(client: CommandoClient) {
@@ -35,7 +35,7 @@ export default class MultirollCommand extends Command {
   ) {
     const rolls = [];
     for (let i = 0; i < repetitions; i++) {
-      const roll = new DiceRoll(notation);
+      const roll = rollDice(notation, this.client, message);
       rolls.push(roll.output);
     }
 
@@ -45,8 +45,6 @@ export default class MultirollCommand extends Command {
   }
 
   onError(err: Error, message: CommandoMessage) {
-    return message.reply(
-      "What the frig? Foolish Steve! That is not a dice roll."
-    );
+    return message.reply(`What the frig? Foolish Steve! ${err.message}`);
   }
 }
