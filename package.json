@@ -2,9 +2,10 @@
   "name": "melvin",
   "version": "0.2.0",
   "description": "An advanced RPG dice bot for Discord",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsc && ./melvin.sh",
+    "dev": "nodemon --watch src -e ts --exec \"npm run start\""
   },
   "keywords": [
     "dice",
@@ -41,6 +42,7 @@
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
+    "nodemon": "^2.0.7",
     "prettier": "^2.3.2",
     "typescript": "^4.3.4"
   }
