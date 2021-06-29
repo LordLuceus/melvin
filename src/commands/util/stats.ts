@@ -14,9 +14,9 @@ export default class StatsCommand extends Command {
 
   run(message: CommandoMessage) {
     return message.reply(
-      `I've been rolling dice in ${
-        this.client.guilds.cache.size
-      } servers for ${ms(this.client.uptime as number, { long: true })}.`
+      `Uptime: ${ms(this.client.uptime as number, { long: true })}
+      Guilds: ${this.client.guilds.cache.size}
+      Memory usage: ${process.memoryUsage().rss}`
     );
   }
 }

@@ -53,7 +53,7 @@ export default class SaveCommand extends Command {
       parsedSettings[message.author.id][name]
     ) {
       return message.reply(
-        `The setting ${name} already exists. Please use a different name.`
+        `The setting ${name} already exists. Use a different name, Steve!`
       );
     }
 

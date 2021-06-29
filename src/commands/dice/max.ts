@@ -1,5 +1,5 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { DiceRoll } from "rpg-dice-roller";
+import { rollDice } from "../../util/roll-dice";
 
 export default class MaxCommand extends Command {
   constructor(client: CommandoClient) {
@@ -25,13 +25,11 @@ export default class MaxCommand extends Command {
   }
 
   run(message: CommandoMessage, { notation }: { notation: string }) {
-    const roll = new DiceRoll(notation);
+    const roll = rollDice(notation, this.client, message);
     return message.reply(roll.maxTotal);
   }
 
   onError(err: Error, message: CommandoMessage) {
-    return message.reply(
-      "What the frig? Foolish Steve! That is not a dice roll."
-    );
+    return message.reply(`What the frig? Foolish Steve! ${err.message}`);
   }
 }
