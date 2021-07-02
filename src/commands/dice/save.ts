@@ -69,9 +69,9 @@ export default class SaveCommand extends Command {
     );
 
     return message.reply(
-      `Saved ${value} as ${name}. Use ${
-        message.guild.commandPrefix || this.client.commandPrefix
-      }roll \$${name} to roll the saved dice.`
+      `Saved ${value} as ${name}. Use ${message.anyUsage(
+        "roll $" + name
+      )} to roll the saved dice.`
     );
   }
 }
