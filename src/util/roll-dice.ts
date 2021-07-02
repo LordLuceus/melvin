@@ -12,9 +12,9 @@ export const rollDice = (
     const savedSettings = client.provider.get(msg.guild, "rolls");
     if (!savedSettings) {
       throw new Error(
-        `No settings saved. Try to ${
+        `No settings saved. Try to \`${
           msg.guild.commandPrefix || client.commandPrefix
-        }save something first.`
+        }save\` something first.`
       );
     }
 
@@ -22,9 +22,9 @@ export const rollDice = (
 
     if (!parsedSettings[msg.author.id]) {
       throw new Error(
-        `You haven't saved any settings yet. Try to ${
+        `You haven't saved any settings yet. Try to \`${
           msg.guild.commandPrefix || client.commandPrefix
-        }save something first.`
+        }save\` something first.`
       );
     }
 
