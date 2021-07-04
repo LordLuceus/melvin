@@ -1,10 +1,10 @@
 {
   "name": "melvin",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "An advanced RPG dice bot for Discord",
   "main": "dist/index.js",
   "scripts": {
-    "start": "tsc && ./melvin.sh",
+    "start": "tsc && node dist/index.js",
     "dev": "nodemon --watch src -e ts --exec \"npm run start\""
   },
   "keywords": [
