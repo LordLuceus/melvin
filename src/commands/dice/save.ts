@@ -1,3 +1,4 @@
+import { CollectorFilter, MessageReaction, User } from "discord.js";
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 
 interface RollSettings {
@@ -52,11 +53,59 @@ export default class SaveCommand extends Command {
       parsedSettings[message.author.id] &&
       parsedSettings[message.author.id][name]
     ) {
-      return message.reply(
-        `The setting ${name} already exists. Use a different name, Steve!`
+      const filter: CollectorFilter = (
+        reaction: MessageReaction,
+        user: User
+      ) => {
+        return (
+          ["😄", "😦"].includes(reaction.emoji.name) &&
+          user.id === message.author.id
+        );
+      };
+
+      const reply = await message.reply(
+        `The setting \`${name}\` already exists. Do you want to overwrite it?`
       );
+      await reply.react("😄");
+      await reply.react("😦");
+
+      try {
+        const collected = await reply.awaitReactions(filter, {
+          max: 1,
+          time: 30000,
+          errors: ["time"],
+        });
+        const reaction = collected.first();
+
+        if (reaction?.emoji.name === "😄") {
+          await this.save(parsedSettings, message, name, value);
+
+          return message.reply(
+            `\`${name}\` saved with new value \`${value}\`.`
+          );
+        }
+
+        return message.reply(`\`${name}\` will not be overwritten.`);
+      } catch {
+        return message.reply(`\`${name}\` will not be overwritten.`);
+      }
     }
 
+    await this.save(parsedSettings, message, name, value);
+
+    return message.reply(
+      `Saved \`${value}\` as \`${name}\`. Use ${message.anyUsage(
+        "roll $" + name
+      )} to roll the saved dice.`
+    );
+  }
+
+  private async save(
+    parsedSettings: RollSettings,
+    message: CommandoMessage,
+    name: string,
+    value: string
+  ) {
     parsedSettings[message.author.id] = {
       ...parsedSettings[message.author.id],
       [name]: value,
@@ -66,12 +115,6 @@ export default class SaveCommand extends Command {
       message.guild,
       "rolls",
       JSON.stringify(parsedSettings)
-    );
-
-    return message.reply(
-      `Saved ${value} as ${name}. Use ${message.anyUsage(
-        "roll $" + name
-      )} to roll the saved dice.`
     );
   }
 }
