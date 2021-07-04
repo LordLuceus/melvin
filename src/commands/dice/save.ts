@@ -64,7 +64,7 @@ export default class SaveCommand extends Command {
       };
 
       const reply = await message.reply(
-        `The setting \`${name}\` already exists. Do you want to overwrite it?`
+        `The roll \`${name}\` already exists. Do you want to overwrite it?`
       );
       await reply.react("😄");
       await reply.react("😦");
