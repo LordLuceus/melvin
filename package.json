@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "bufferutil": "^4.0.3",
-    "discord.js": "^12.5.1",
+    "discord.js": "^13.0.1",
     "discord.js-commando": "github:discordjs/commando",
     "erlpack": "github:discord/erlpack",
     "ms": "^2.1.3",
