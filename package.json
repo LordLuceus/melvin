@@ -43,6 +43,6 @@
     "eslint-plugin-import": "^2.24.1",
     "nodemon": "^2.0.12",
     "prettier": "^2.3.2",
-    "typescript": "^4.3.5"
+    "typescript": "^4.4.2"
   }
 }
