@@ -23,7 +23,7 @@
     "url": "https://github.com/LordLuceus/melvin.git"
   },
   "dependencies": {
-    "bufferutil": "^4.0.4",
+    "bufferutil": "^4.0.5",
     "discord.js": "^12.5.1",
     "discord.js-commando": "github:discordjs/commando",
     "ms": "^2.1.3",
@@ -35,12 +35,12 @@
   },
   "devDependencies": {
     "@types/ms": "^0.7.31",
-    "@types/node": "^16.10.3",
+    "@types/node": "^16.11.1",
     "@types/sqlite3": "^3.1.7",
-    "eslint": "^8.0.0",
+    "eslint": "^8.0.1",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-import": "^2.25.2",
     "nodemon": "^2.0.13",
     "prettier": "^2.4.1",
     "typescript": "^4.4.3"
