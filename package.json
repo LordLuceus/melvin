@@ -23,7 +23,7 @@
     "url": "https://github.com/LordLuceus/melvin.git"
   },
   "dependencies": {
-    "bufferutil": "^4.0.4",
+    "bufferutil": "^4.0.5",
     "discord.js": "^12.5.1",
     "discord.js-commando": "github:discordjs/commando",
     "ms": "^2.1.3",
