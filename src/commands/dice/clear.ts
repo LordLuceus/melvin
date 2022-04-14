@@ -36,6 +36,9 @@ export default class ClearCommand extends Command {
 
     if (parsedSettings[message.author.id][roll]) {
       delete parsedSettings[message.author.id][roll];
+      if (Object.keys(parsedSettings[message.author.id]).length === 0) {
+        delete parsedSettings[message.author.id];
+      }
     } else if (roll === "all") {
       delete parsedSettings[message.author.id];
     }
