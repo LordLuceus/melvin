@@ -1,4 +1,5 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
+import { Message } from "discord.js";
 
 export default class ClearCommand extends Command {
   constructor(client: CommandoClient) {
@@ -20,6 +21,7 @@ export default class ClearCommand extends Command {
           default: "all",
         },
       ],
+      examples: ["?clear", "?clear fireball"],
     });
   }
 
@@ -34,13 +36,18 @@ export default class ClearCommand extends Command {
       return message.reply("You have no saved rolls.");
     }
 
+    let reply: Message;
     if (parsedSettings[message.author.id][roll]) {
       delete parsedSettings[message.author.id][roll];
       if (Object.keys(parsedSettings[message.author.id]).length === 0) {
         delete parsedSettings[message.author.id];
       }
-    } else if (roll === "all") {
+      reply = await message.reply(`Roll \`${roll}\` was cleared.`);
+    } else if (!parsedSettings[message.author.id][roll]) {
+      reply = await message.reply(`The roll \`${roll}\` does not exist.`);
+    } else {
       delete parsedSettings[message.author.id];
+      reply = await message.reply("Rolls cleared.");
     }
     await this.client.provider.set(
       message.guild,
@@ -48,6 +55,6 @@ export default class ClearCommand extends Command {
       JSON.stringify(parsedSettings)
     );
 
-    return message.reply("Rolls cleared.");
+    return reply;
   }
 }
