@@ -56,8 +56,8 @@ export const rollDice = (
       throw new Error("No roll saved with that name.");
     }
 
-    return new DiceRoll(rollString);
+    return new DiceRoll(rollString.toLowerCase());
   }
 
-  return new DiceRoll(dice);
+  return new DiceRoll(dice.toLowerCase());
 };
