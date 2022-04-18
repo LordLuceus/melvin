@@ -43,7 +43,7 @@ export default class ClearCommand extends Command {
         delete parsedSettings[message.author.id];
       }
       reply = await message.reply(`Roll \`${roll}\` was cleared.`);
-    } else if (!parsedSettings[message.author.id][roll]) {
+    } else if (!parsedSettings[message.author.id][roll] && roll !== "all") {
       reply = await message.reply(`The roll \`${roll}\` does not exist.`);
     } else {
       delete parsedSettings[message.author.id];
