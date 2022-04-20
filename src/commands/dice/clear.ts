@@ -5,7 +5,9 @@ export default class ClearCommand extends Command {
   constructor(client: CommandoClient) {
     super(client, {
       name: "clear",
-      description: "Delete a roll or wipe all your saved rolls",
+      description: "Delete specific rolls or wipe all your saved rolls",
+      details:
+        "You can use this command with no arguments to clear all your saved rolls, or you can specify a roll name to clear. You can also clear multiple rolls at once by specifying multiple names separated by spaces.",
       group: "dice",
       memberName: "clear",
       guildOnly: true,
@@ -22,7 +24,7 @@ export default class ClearCommand extends Command {
           infinite: true,
         },
       ],
-      examples: ["?clear", "?clear fireball"],
+      examples: ["?clear", "?clear fireball", "?clear fireball dexSave"],
     });
   }
 
