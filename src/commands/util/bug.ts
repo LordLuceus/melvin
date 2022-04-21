@@ -33,7 +33,7 @@ export default class BugCommand extends Command {
     message: CommandoMessage,
     { report }: { report: string }
   ): Promise<Message | Message[] | null> {
-    await this.client.owners[0].send(report);
+    await this.client.owners[0].send(`${message.author}: ${report}`);
     return message.reply("Report sent.");
   }
 }
