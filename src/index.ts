@@ -25,7 +25,10 @@ melvin
   .catch(console.error);
 
 melvin.registry
-  .registerGroups([["dice", "Dice Commands"]])
+  .registerGroups([
+    ["dice", "Dice Commands"],
+    ["initiative", "Commands for tracking initiative"],
+  ])
   .registerDefaultTypes()
   .registerDefaultGroups()
   .registerDefaultCommands({ unknownCommand: false })

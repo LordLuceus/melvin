@@ -1,4 +1,5 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
+import { RollSettings } from "../../util/types";
 
 export default class ListCommand extends Command {
   constructor(client: CommandoClient) {
@@ -20,7 +21,7 @@ export default class ListCommand extends Command {
       return message.reply("You haven't saved any rolls.");
     }
 
-    const parsedSettings = JSON.parse(savedSettings);
+    const parsedSettings: RollSettings = JSON.parse(savedSettings);
     if (!parsedSettings[message.author.id]) {
       return message.reply("You haven't saved any rolls.");
     }

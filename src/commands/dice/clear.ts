@@ -1,5 +1,6 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 import { Message } from "discord.js";
+import { RollSettings } from "../../util/types";
 
 export default class ClearCommand extends Command {
   constructor(client: CommandoClient) {
@@ -34,7 +35,7 @@ export default class ClearCommand extends Command {
       return message.reply("There are no saved rolls to clear.");
     }
 
-    const parsedSettings = JSON.parse(savedSettings);
+    const parsedSettings: RollSettings = JSON.parse(savedSettings);
     if (!parsedSettings[message.author.id]) {
       return message.reply("You have no saved rolls.");
     }
