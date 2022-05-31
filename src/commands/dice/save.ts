@@ -1,11 +1,6 @@
 import { CollectorFilter, MessageReaction, User } from "discord.js";
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-
-interface RollSettings {
-  [key: string]: {
-    [key: string]: string;
-  };
-}
+import { RollSettings } from "../../util/types";
 
 export default class SaveCommand extends Command {
   constructor(client: CommandoClient) {
