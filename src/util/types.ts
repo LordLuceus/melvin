@@ -4,12 +4,17 @@ export interface RollSettings {
   };
 }
 
+export interface Condition {
+  value: string;
+  duration: number;
+  end: "eot" | "eor";
+}
+
 export interface TrackerItem {
   name: string;
   value: number;
-  tied?: boolean;
-  tieBreaker?: number;
   current?: boolean;
+  conditions?: Condition[];
 }
 
 export interface Tracker {
