@@ -28,7 +28,7 @@ export default class RollCommand extends Command {
     );
   }
 
-  public override chatInputRun(interaction: CommandInteraction) {
+  public chatInputRun(interaction: CommandInteraction) {
     const notation = interaction.options.getString("dice");
 
     if (notation) {

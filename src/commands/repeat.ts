@@ -34,7 +34,7 @@ export class RepeatCommand extends Command {
     );
   }
 
-  public override async chatInputRun(interaction: CommandInteraction) {
+  public async chatInputRun(interaction: CommandInteraction) {
     const repetitions = interaction.options.getInteger("repetitions");
     const notation = interaction.options.getString("dice");
 

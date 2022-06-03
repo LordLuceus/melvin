@@ -1,5 +1,6 @@
-import { Listener } from "@sapphire/framework";
+import { Listener, LogLevel } from "@sapphire/framework";
 import { ActivityTypes } from "discord.js/typings/enums";
+import { writeLog } from "../util/log";
 import { setEngine } from "../util/setEngine";
 
 export class ReadyListener extends Listener {
@@ -15,6 +16,6 @@ export class ReadyListener extends Listener {
       type: ActivityTypes.PLAYING,
       name: `Dice in ${this.container.client.guilds.cache.size} servers.`,
     });
-    this.container.logger.info("Ready to roll!");
+    writeLog(LogLevel.Info, this.name, "Ready to roll!");
   }
 }

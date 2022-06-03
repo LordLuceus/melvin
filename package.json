@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
-    "dev": "nodemon --watch src -e ts --exec \"npm run start\""
+    "dev": "NODE_ENV=development nodemon --watch src -e ts --exec \"npm run start\""
   },
   "keywords": [
     "dice",
@@ -25,6 +25,7 @@
   "dependencies": {
     "@dice-roller/rpg-dice-roller": "^5.1.0",
     "@discordjs/builders": "^0.13.0",
+    "@sapphire/discord.js-utilities": "^4.11.1",
     "@sapphire/framework": "^3.0.0-next.b7485a2.0",
     "@sapphire/plugin-logger": "^2.2.1",
     "bufferutil": "^4.0.5",

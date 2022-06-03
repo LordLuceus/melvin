@@ -1,13 +1,18 @@
-import { Listener } from "@sapphire/framework";
+import { Listener, LogLevel } from "@sapphire/framework";
 import type {
   ChatInputCommandDeniedPayload,
   UserError,
 } from "@sapphire/framework";
+import { writeLog } from "../util/log";
 
 export class ChatInputCommandDeniedListener extends Listener {
   public run(error: UserError, { interaction }: ChatInputCommandDeniedPayload) {
-    this.container.logger.info(
-      `Command ${interaction.command?.name} was denied with message: ${error.message}.`
+    writeLog(
+      LogLevel.Info,
+      interaction.command?.name || "",
+      `Command used by ${interaction.user.toString()} denied with message: ${
+        error.message
+      }`
     );
     return interaction.reply(error.message);
   }
