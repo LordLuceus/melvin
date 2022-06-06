@@ -2,7 +2,9 @@
 
 **An advanced RPG dice bot for Discord**
 
-## [Invite Melvin to your server](https://discord.com/api/oauth2/authorize?client_id=813806889657434173&permissions=0&scope=bot)
+> Note: Melvin is currently being rewritten to support slash commands. All current functionality, and some that is brand new, will be available in the form of slash commands and the old commands will be removed. If you're currently using Melvin in your server, the transition may cause Melvin to stop working for you altogether. If this is the case, please reinvite Melvin using the invite link below or at the top of the top.gg page. Thank you for your understanding.
+
+## [Invite Melvin to your server](https://discord.com/api/oauth2/authorize?client_id=813806889657434173&permissions=0&scope=bot%20applications.commands)
 
 ### Usage
 
