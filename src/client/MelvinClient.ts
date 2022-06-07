@@ -1,6 +1,8 @@
 import { container, LogLevel, SapphireClient } from "@sapphire/framework";
 import { DataSource } from "typeorm";
 import { database } from "../config/config.json";
+import { User } from "../entities/User";
+import { writeLog } from "../util/log";
 
 export class MelvinClient extends SapphireClient {
   constructor() {
@@ -24,13 +26,19 @@ export class MelvinClient extends SapphireClient {
       username,
       password,
       database: db,
+      entities: [User],
       synchronize: process.env.NODE_ENV === "development" ? true : false,
       logging: ["error"],
       maxQueryExecutionTime: 1000,
       logger: "file",
     });
 
-    container.database = await container.database.initialize();
+    try {
+      container.database = await container.database.initialize();
+    } catch (err: any) {
+      writeLog(LogLevel.Error, err.name, err.message);
+      process.exit(1);
+    }
     return super.login(token);
   }
 
