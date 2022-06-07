@@ -64,7 +64,7 @@ export default class RollCommand extends Command {
           rolls.push(roll);
         }
 
-        const author = interaction.member?.toString();
+        const author = interaction.user.toString();
         const replies = rolls.map((r, i) => {
           if (i === 0) {
             return `${author}, ${r[display as keyof typeof r]}`;
@@ -80,7 +80,7 @@ export default class RollCommand extends Command {
         return;
       }
       const roll = new DiceRoll(notation);
-      const author = interaction.member?.toString();
+      const author = interaction.user.toString();
       const reply = `${author}, ${roll[display as keyof typeof roll]}`;
       return interaction.reply(reply);
     }

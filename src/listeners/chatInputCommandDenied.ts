@@ -1,8 +1,8 @@
-import { Listener, LogLevel } from "@sapphire/framework";
 import type {
   ChatInputCommandDeniedPayload,
   UserError,
 } from "@sapphire/framework";
+import { Listener, LogLevel } from "@sapphire/framework";
 import { writeLog } from "../util/log";
 
 export class ChatInputCommandDeniedListener extends Listener {

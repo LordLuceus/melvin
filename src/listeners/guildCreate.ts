@@ -9,6 +9,10 @@ export class GuildCreateListener extends Listener {
       type: ActivityTypes.PLAYING,
       name: `Dice in ${this.container.client.guilds.cache.size} servers.`,
     });
-    writeLog(LogLevel.Info, this.name, `Joined guild ${guild.name}`);
+    writeLog(
+      LogLevel.Info,
+      this.name,
+      `Joined guild ${guild.name} with ${guild.memberCount}`
+    );
   }
 }

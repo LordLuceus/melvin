@@ -9,9 +9,9 @@ export class ExitListener extends Listener {
     });
   }
 
-  public run() {
+  public async run() {
     writeLog(LogLevel.Info, this.name, "Exiting.");
-    this.container.client.destroy();
+    await this.container.client.destroy();
     process.exit(0);
   }
 }

@@ -1,7 +1,7 @@
 import "@sapphire/plugin-logger/register";
 import "reflect-metadata";
+import { MelvinClient } from "./client/MelvinClient";
 import { token } from "./config/config.json";
-import { MelvinClient } from "./util/melvinClient";
 
 const melvin = new MelvinClient();
 

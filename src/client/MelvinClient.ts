@@ -1,4 +1,4 @@
-import { SapphireClient, LogLevel, container } from "@sapphire/framework";
+import { container, LogLevel, SapphireClient } from "@sapphire/framework";
 import { DataSource } from "typeorm";
 import { database } from "../config/config.json";
 
@@ -24,8 +24,9 @@ export class MelvinClient extends SapphireClient {
       username,
       password,
       database: db,
-      synchronize: true,
-      logging: true,
+      synchronize: process.env.NODE_ENV === "development" ? true : false,
+      logging: ["error"],
+      maxQueryExecutionTime: 1000,
       logger: "file",
     });
 
