@@ -1,10 +1,23 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryColumn,
+} from "typeorm";
+import { Guild } from "./Guild";
+import { Roll } from "./Roll";
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn({ length: 18 })
+  id: string;
 
-  @Column({ length: 18 })
-  userId: string;
+  @ManyToMany(() => Guild, (guild) => guild.users, { onDelete: "CASCADE" })
+  @JoinTable()
+  guilds: Guild[];
+
+  @OneToMany(() => Roll, (roll) => roll.user, { cascade: true, eager: true })
+  rolls: Roll[];
 }

@@ -29,6 +29,7 @@
     "@sapphire/framework": "^3.0.0-next.080c438.0",
     "@sapphire/plugin-logger": "^2.2.1",
     "bufferutil": "^4.0.5",
+    "discord-api-types": "^0.33.5",
     "discord.js": "^13.7.0",
     "erlpack": "github:discord/erlpack",
     "ms": "^2.1.3",
