@@ -1,8 +1,9 @@
-import { Command, RegisterBehavior } from "@sapphire/framework";
-import { CommandInteraction } from "discord.js";
+import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
+import type { CommandInteraction } from "discord.js";
 import { Guild } from "../../entities/Guild";
 import { Roll } from "../../entities/Roll";
 import { User } from "../../entities/User";
+import { writeLog } from "../../util/log";
 
 export class SaveCommand extends Command {
   constructor(context: Command.Context) {
@@ -41,103 +42,114 @@ export class SaveCommand extends Command {
   }
 
   public async chatInputRun(interaction: CommandInteraction) {
-    // TODO: Refactor this pile of crap!
     const name = interaction.options.getString("name");
     const notation = interaction.options.getString("value");
 
-    if (name && notation && interaction.guild?.id) {
-      const { manager } = this.container.database;
-      const savedGuild = await manager.findOne(Guild, {
-        where: { id: interaction.guild.id },
-      });
-
-      if (!savedGuild) {
-        // If the guild is not in the database, we try to find the user in case they already have saved rolls elsewhere (we don't want to blow up their existing rolls!)
-        const savedUser = await manager.findOne(User, {
-          where: { id: interaction.user.id },
-        });
-        if (!savedUser) {
-          // If there's no user either, we make everything from scratch.
-          const roll = manager.create(Roll, { name, value: notation });
-          const user = manager.create(User, {
-            id: interaction.user.id,
-            rolls: [roll],
-          });
-          const guild = manager.create(Guild, {
-            id: interaction.guild.id,
-            users: [user],
-            rolls: [roll],
-          });
-          await manager.save(guild);
-          return interaction.reply(
-            `Roll \`${notation}\` saved as \`${name}\`. You can include your saved roll when using the \`/roll\` command by prefixing it with \`\$\`. If you add anything after the saved roll, please make sure there is a space after it.`
-          );
-        }
-        // We have a user, but no guild.
-        const roll = manager.create(Roll, { name, value: notation });
-        savedUser.rolls.push(roll);
-        const guild = manager.create(Guild, {
-          id: interaction.guild.id,
-          users: [savedUser],
-          rolls: [roll],
-        });
-        await manager.save(guild);
-        return interaction.reply(`Saved roll \`${notation}\` as \`${name}\`.`);
-      }
-      // We have a guild.
-      const savedUser = savedGuild.users.find(
-        (u) => u.id === interaction.user.id
-      );
-      if (!savedUser) {
-        // The user might have some rolls saved elsewhere so we need to check.
-        const user = await manager.findOne(User, {
-          where: { id: interaction.user.id },
-        });
-
-        if (!user) {
-          const roll = manager.create(Roll, { name, value: notation });
-          const user = manager.create(User, {
-            id: interaction.user.id,
-            rolls: [roll],
-          });
-          savedGuild.users.push(user);
-          savedGuild.rolls.push(roll);
-          await manager.save(savedGuild);
-          return interaction.reply(
-            `Saved roll \`${notation}\` as \`${name}\`.`
-          );
-        }
-
-        // Check if the user has already saved a roll with the same name.
-        if (user.rolls.find((r) => r.name === name)) {
+    if (name && notation && interaction.guild) {
+      try {
+        const saved = await this.save(
+          name,
+          notation,
+          interaction.user.id,
+          interaction.guild.id
+        );
+        if (!saved) {
           return interaction.reply(
             "You have already saved a roll with this name."
           );
         }
-        const roll = manager.create(Roll, {
-          name,
-          value: notation,
-          guild: savedGuild,
+        const savedUser = await this.findUser(interaction.user.id);
+        return interaction.reply(this.composeReply(name, notation, !savedUser));
+      } catch (err: any) {
+        writeLog(LogLevel.Error, this.name, err.message);
+        return interaction.reply(`What the frig? ${err.message}`);
+      }
+    }
+  }
+
+  private async findUser(id: string): Promise<User | null> {
+    const { manager } = this.container.database;
+
+    const savedUser = await manager.findOne(User, { where: { id } });
+    return savedUser;
+  }
+
+  private async save(
+    name: string,
+    notation: string,
+    userId: string,
+    guildId: string
+  ): Promise<boolean> {
+    const { manager } = this.container.database;
+    const savedGuild = await manager.findOne(Guild, {
+      where: { id: guildId },
+    });
+
+    const savedUser = await this.findUser(userId);
+
+    const roll = manager.create(Roll, { name, value: notation });
+
+    if (!savedGuild) {
+      if (!savedUser) {
+        // If there's no user or guild, we make everything from scratch.
+        const user = manager.create(User, {
+          id: userId,
+          rolls: [roll],
         });
-        user.rolls.push(roll);
-        savedGuild.users.push(user);
-        savedGuild.rolls.push(roll);
-        await manager.save(savedGuild);
-        return interaction.reply(`Saved roll \`${notation}\` as \`${name}\`.`);
+        const guild = manager.create(Guild, {
+          id: guildId,
+          users: [user],
+          rolls: [roll],
+        });
+        await manager.save(guild);
+        return true;
       }
-
-      if (savedUser.rolls.find((r) => r.name === name)) {
-        return interaction.reply(
-          "You have already saved a roll with that name."
-        );
-      }
-
-      const roll = manager.create(Roll, { name, value: notation });
+      // We have a user, but no guild.
       savedUser.rolls.push(roll);
-      savedGuild.users.push(savedUser);
+      const guild = manager.create(Guild, {
+        id: guildId,
+        users: [savedUser],
+        rolls: [roll],
+      });
+      await manager.save(guild);
+      return true;
+    }
+    // We have a guild.
+
+    if (!savedUser) {
+      const user = manager.create(User, {
+        id: userId,
+        rolls: [roll],
+      });
+      savedGuild.users.push(user);
       savedGuild.rolls.push(roll);
       await manager.save(savedGuild);
-      return interaction.reply(`Roll \`${notation}\` saved as \`${name}\``);
+      return true;
     }
+
+    const savedRoll = await manager.findOne(Roll, {
+      where: { name, guild: savedGuild, user: savedUser },
+    });
+    if (savedRoll) {
+      return false;
+    }
+
+    savedUser.rolls.push(roll);
+    savedGuild.users.push(savedUser);
+    savedGuild.rolls.push(roll);
+    await manager.save(savedGuild);
+    return true;
+  }
+
+  private composeReply(
+    name: string,
+    notation: string,
+    firstTime?: boolean
+  ): string {
+    return `Roll \`${notation}\` saved as \`${name}\`. ${
+      firstTime
+        ? "You can include your saved roll when using the `/roll` command by prefixing it with `$`. If you add anything after the saved roll, please make sure to separate it with a space."
+        : ""
+    }`;
   }
 }
