@@ -15,7 +15,6 @@ export class Guild {
 
   @ManyToMany(() => User, (user) => user.guilds, {
     eager: true,
-    cascade: true,
   })
   users: User[];
 

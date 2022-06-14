@@ -18,6 +18,6 @@ export class User {
   @JoinTable()
   guilds: Guild[];
 
-  @OneToMany(() => Roll, (roll) => roll.user, { cascade: true, eager: true })
+  @OneToMany(() => Roll, (roll) => roll.user, { eager: true })
   rolls: Roll[];
 }

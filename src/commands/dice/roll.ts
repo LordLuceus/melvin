@@ -51,7 +51,10 @@ export default class RollCommand extends Command {
   }
 
   public async chatInputRun(interaction: CommandInteraction) {
-    const notation = interaction.options.getString("dice");
+    const notation = interaction.options
+      .getString("dice")
+      ?.toLowerCase()
+      .trim();
     const repetitions = interaction.options.getInteger("repetitions");
     const display = interaction.options.getString("output") || "output";
 
