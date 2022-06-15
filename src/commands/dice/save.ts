@@ -67,6 +67,13 @@ export class SaveCommand extends Command {
           });
         }
 
+        const regex = /\W+/;
+        if (regex.test(name)) {
+          return interaction.reply({
+            content: "A roll name cannot contain any special characters.",
+            ephemeral: true,
+          });
+        }
         const savedUser = await this.findUser(interaction.user.id);
 
         const saved = await this.save(
