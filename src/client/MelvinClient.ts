@@ -1,3 +1,4 @@
+import { DiceRoller } from "@dice-roller/rpg-dice-roller";
 import { container, LogLevel, SapphireClient } from "@sapphire/framework";
 import { DataSource } from "typeorm";
 import { database } from "../config/config.json";
@@ -29,11 +30,13 @@ export class MelvinClient extends SapphireClient {
       password,
       database: db,
       entities: [User, Guild, Roll],
-      synchronize: process.env.NODE_ENV === "development" ? true : false,
+      synchronize: process.env.NODE_ENV === "development",
       logging: true,
       maxQueryExecutionTime: 1000,
       logger: "file",
     });
+
+    container.diceRoller = new DiceRoller();
 
     try {
       container.database = await container.database.initialize();
@@ -51,7 +54,9 @@ export class MelvinClient extends SapphireClient {
 }
 
 declare module "@sapphire/pieces" {
+  /* eslint no-unused-vars: "off" */
   interface Container {
     database: DataSource;
+    diceRoller: DiceRoller;
   }
 }

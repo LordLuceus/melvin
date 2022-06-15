@@ -15,6 +15,7 @@ export class OwnerOnlyPrecondition extends Precondition {
 }
 
 declare module "@sapphire/framework" {
+  /* eslint no-unused-vars: "off" */
   interface Preconditions {
     OwnerOnly: never;
   }

@@ -31,5 +31,6 @@ export class PingCommand extends Command {
         `Pong 🏓! (Round trrip took ${diff}ms. Heartbeat: ${ping}ms.)`
       );
     }
+    return null;
   }
 }

@@ -47,10 +47,14 @@ export class SaveCommand extends Command {
   }
 
   public async chatInputRun(interaction: CommandInteraction) {
-    const name = interaction.options.getString("name");
-    const notation = interaction.options.getString("value");
+    const name = interaction.options.getString("name")?.toLowerCase().trim();
+    const notation = interaction.options
+      .getString("value")
+      ?.toLowerCase()
+      .trim();
+    const { guild } = interaction;
 
-    if (name && notation && interaction.guild) {
+    if (name && notation && guild) {
       try {
         const savedUser = await this.findUser(interaction.user.id);
 
@@ -58,12 +62,17 @@ export class SaveCommand extends Command {
           name,
           notation,
           interaction.user.id,
-          interaction.guild.id
+          guild.id
         );
         if (!saved) {
-          const reply = await this.composeReply(interaction, name, notation, {
-            confirm: true,
-          });
+          const reply = await SaveCommand.composeReply(
+            interaction,
+            name,
+            notation,
+            {
+              confirm: true,
+            }
+          );
 
           const filter = (i: MessageComponentInteraction) => {
             i.deferUpdate();
@@ -81,10 +90,10 @@ export class SaveCommand extends Command {
                 name,
                 notation,
                 interaction.user.id,
-                interaction.guild?.id,
+                guild.id,
                 true
               );
-              return this.composeReply(interaction, name, notation, {
+              return SaveCommand.composeReply(interaction, name, notation, {
                 edit: true,
               });
             }
@@ -94,7 +103,7 @@ export class SaveCommand extends Command {
             });
           }
         }
-        return this.composeReply(interaction, name, notation, {
+        return SaveCommand.composeReply(interaction, name, notation, {
           firstTime: !savedUser,
         });
       } catch (err: any) {
@@ -102,6 +111,7 @@ export class SaveCommand extends Command {
         return interaction.reply(`What the frig? ${err.message}`);
       }
     }
+    return null;
   }
 
   private async findUser(id: string): Promise<User | null> {
@@ -194,7 +204,7 @@ export class SaveCommand extends Command {
     return true;
   }
 
-  private async composeReply(
+  private static async composeReply(
     interaction: CommandInteraction,
     name: string,
     notation: string,

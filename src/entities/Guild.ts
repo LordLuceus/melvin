@@ -1,10 +1,4 @@
-import {
-  Entity,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
-  PrimaryColumn,
-} from "typeorm";
+import { Entity, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
 import { Roll } from "./Roll";
 import { User } from "./User";
 
