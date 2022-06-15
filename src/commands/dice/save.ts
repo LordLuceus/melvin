@@ -1,3 +1,4 @@
+import { Parser } from "@dice-roller/rpg-dice-roller";
 import { isMessageInstance } from "@sapphire/discord.js-utilities";
 import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
 import type {
@@ -56,6 +57,16 @@ export class SaveCommand extends Command {
 
     if (name && notation && guild) {
       try {
+        try {
+          Parser.parse(notation);
+        } catch (err: any) {
+          writeLog(LogLevel.Error, this.name, err.message);
+          return interaction.reply({
+            content: `\`${notation}\` is not a valid dice notation.`,
+            ephemeral: true,
+          });
+        }
+
         const savedUser = await this.findUser(interaction.user.id);
 
         const saved = await this.save(
