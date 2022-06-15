@@ -257,7 +257,7 @@ export class SaveCommand extends Command {
     return interaction.reply({
       content: `Roll \`${notation}\` saved as \`${name}\`. ${
         options?.firstTime
-          ? "You can include your saved roll when using the `/roll` command by prefixing it with `$`. If you add anything after the saved roll, please make sure to separate it with a space."
+          ? "You can include your saved rolls when using the `/roll` command by just typing their names. They will automatically be replaced with their corresponding values."
           : ""
       }`,
       ephemeral: true,
