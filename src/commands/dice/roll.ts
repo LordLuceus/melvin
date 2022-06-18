@@ -1,6 +1,7 @@
-import { DiceRoll } from "@dice-roller/rpg-dice-roller";
+import type { DiceRoll } from "@dice-roller/rpg-dice-roller";
 import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
 import type { CommandInteraction } from "discord.js";
+import { chunkString } from "../../util/chunkString";
 import { writeLog } from "../../util/log";
 import { rollDice } from "../../util/rollDice";
 
@@ -96,7 +97,7 @@ export default class RollCommand extends Command {
     );
   }
 
-  private static composeReply(
+  private static async composeReply(
     interaction: CommandInteraction,
     roll: DiceRoll | DiceRoll[],
     output: string
@@ -121,6 +122,14 @@ export default class RollCommand extends Command {
             roll[output as keyof typeof roll]
           }`;
     }
-    return interaction.reply(`${author}: ${result}`);
+    const reply = `${author}: ${result}`;
+    if (reply.length > 2000) {
+      const delimiter = reply.includes("\n") ? "\n" : " ";
+      const messages = chunkString(reply, delimiter);
+      const followups = messages.slice(1);
+      await interaction.reply(messages[0]);
+      return followups.forEach((r) => interaction.followUp(r));
+    }
+    return interaction.reply(reply);
   }
 }

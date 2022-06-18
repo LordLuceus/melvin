@@ -5,7 +5,7 @@ export class ExitListener extends Listener {
   constructor(context: Listener.Context) {
     super(context, {
       emitter: process,
-      event: "SIGTERM",
+      event: "SIGINT",
     });
   }
 

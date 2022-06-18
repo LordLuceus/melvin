@@ -3,6 +3,7 @@ import type { CommandInteraction } from "discord.js";
 import { Guild } from "../../entities/Guild";
 import { Roll } from "../../entities/Roll";
 import { User } from "../../entities/User";
+import { chunkString } from "../../util/chunkString";
 
 export class ListCommand extends Command {
   constructor(context: Command.Context) {
@@ -48,8 +49,17 @@ export class ListCommand extends Command {
         });
       }
       const rollList = rolls.map((r) => `${r.name}: ${r.value}`);
+      const reply = rollList.join("\n");
+      if (reply.length > 2000) {
+        const messages = chunkString(reply, "\n");
+        const followups = messages.slice(1);
+        await interaction.reply({ content: messages[0], ephemeral: true });
+        return followups.forEach((r) =>
+          interaction.followUp({ content: r, ephemeral: true })
+        );
+      }
       return interaction.reply({
-        content: rollList.join("\n"),
+        content: reply,
         ephemeral: true,
       });
     }
