@@ -14,7 +14,7 @@ export class ReadyListener extends Listener {
     setEngine();
     this.container.client.user?.setActivity({
       type: ActivityTypes.PLAYING,
-      name: `Dice in ${this.container.client.guilds.cache.size} servers.`,
+      name: `havoc with ${this.container.client.guilds.cache.size} servers.`,
     });
     writeLog(LogLevel.Info, this.name, "Ready to roll!");
   }

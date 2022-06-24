@@ -70,7 +70,7 @@ export class SaveCommand extends Command {
         const regex = /\W+/;
         if (regex.test(name)) {
           return interaction.reply({
-            content: "A roll name cannot contain any special characters.",
+            content: "A roll shortcut cannot contain any special characters.",
             ephemeral: true,
           });
         }
@@ -116,7 +116,7 @@ export class SaveCommand extends Command {
               });
             }
             return interaction.editReply({
-              content: "Okay. The roll will not be overwritten.",
+              content: "Okay. The roll shortcut will not be overwritten.",
               components: [],
             });
           }
@@ -234,7 +234,7 @@ export class SaveCommand extends Command {
   ) {
     if (options?.confirm) {
       const reply = await interaction.reply({
-        content: `You have already saved a roll with the name \`${name}\`. Would you like to overwrite it?`,
+        content: `You have already saved a roll shortcut with the name \`${name}\`. Would you like to overwrite it?`,
         ephemeral: true,
         fetchReply: true,
         components: AddComponents({
@@ -257,7 +257,7 @@ export class SaveCommand extends Command {
     return interaction.reply({
       content: `Roll \`${notation}\` saved as \`${name}\`. ${
         options?.firstTime
-          ? "You can include your saved rolls when using the `/roll` command by just typing their names. They will automatically be replaced with their corresponding values."
+          ? "You can include your roll shortcuts when using the `/roll` command by just typing their names. They will automatically be replaced with their corresponding values."
           : ""
       }`,
       ephemeral: true,

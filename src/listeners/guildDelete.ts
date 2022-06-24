@@ -7,7 +7,7 @@ export class GuildDeleteListener extends Listener {
   public run(guild: Guild) {
     this.container.client.user?.setActivity({
       type: ActivityTypes.PLAYING,
-      name: `Dice in ${this.container.client.guilds.cache.size} servers.`,
+      name: `havoc with ${this.container.client.guilds.cache.size} servers.`,
     });
     writeLog(LogLevel.Info, this.name, `Left guild ${guild.name}`);
   }

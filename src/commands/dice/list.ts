@@ -44,7 +44,7 @@ export class ListCommand extends Command {
       });
       if (rolls.length === 0) {
         return interaction.reply({
-          content: "No rolls found.",
+          content: "No roll shortcuts found.",
           ephemeral: true,
         });
       }
