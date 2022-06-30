@@ -47,7 +47,7 @@ The roll command has several options that you can make use of. The first of thes
 
 The other option, output, under the roll command allows you to output information about the dice you have specified. It can output the minimum, maximum or average rolls you can get on that dice.
 
-### Saving rolls.
+### Roll Shortcuts
 
 You can also save rolls that you use often to allow you to re roll them quickly.
 to do this, you type /save, press enter, enter the name e.g fireball, press enter, type in the roll e.g 6d6, and hit enter.
