@@ -38,13 +38,14 @@ The roll command has several options that you can make use of. The first of thes
 3. Hit down arrow and choose the repeat option.
 4. Type in the amount of times you wish to roll these dice: `6`.
 5. Hit enter. The output should look as follows:
+```
 4d6kh3: [3, 5, 1d, 4] = 12
 4d6kh3: [1d, 4, 4, 6] = 14
 4d6kh3: [5, 4, 1d, 3] = 12
 4d6kh3: [4, 6, 3d, 5] = 15
 4d6kh3: [1d, 1, 2, 6] = 9
 4d6kh3: [5d, 5, 5, 6] = 16
-
+```
 The other option, output, under the roll command allows you to output information about the dice you have specified. It can output the minimum, maximum or average rolls you can get on that dice.
 
 ### Roll Shortcuts
