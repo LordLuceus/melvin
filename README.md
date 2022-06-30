@@ -33,7 +33,7 @@
 Note that the modifiers which affect the dice rolls themselves (min, max, k etc) must come before any numerical modifiers (+4). So: `/roll 2d20kh1+9` is valid, but `/roll 2d20+9kh1` is not.
 
 The roll command has several options that you can make use of. The first of these is the repeat option. To use this option to roll 4d6kh3 6 times (dnd stat generation), you should do the following:
-1. type `/roll`.
+1. Type `/roll`.
 2. type in the dice you wish to roll, `4d6kh3`.
 3. Hit down arrow and click the repeat option.
 4. Type in the amount of times you wish to roll these dice, `6`.
