@@ -50,7 +50,7 @@ The other option, output, under the roll command allows you to output informatio
 ### Roll Shortcuts
 
 You can also save rolls that you use often to allow you to reroll them quickly. These roll shortcuts are tied both to you and the server. This means that you can have the same shortcut on multiple servers and have them all be different rolls.
-to do this, you type /save, press enter, enter the name e.g fireball, press enter, type in the roll e.g 6d6, and hit enter.
+To do this, type `/save`, press enter, enter the name, e.g. fireball, press enter, type in the roll, e.g. 6d6, and hit enter.
 To roll it, simply type `/roll fireball`.
 The `list` and `clear` command allow you to interact with your saved rolls. The `list` command lists all saved rolls and the `clear` command clears all saved rolls. 
 The `clear` command can take an optional argument of a roll name and will clear that roll. 
