@@ -36,7 +36,7 @@ The roll command has several options that you can make use of. The first of thes
 1. Type `/roll`.
 2. Type in the dice you wish to roll: `4d6kh3`.
 3. Hit down arrow and choose the repeat option.
-4. Type in the amount of times you wish to roll these dice, `6`.
+4. Type in the amount of times you wish to roll these dice: `6`.
 5. Hit enter. The output should look as follows:
 4d6kh3: [3, 5, 1d, 4] = 12
 4d6kh3: [1d, 4, 4, 6] = 14
