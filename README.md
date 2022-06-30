@@ -54,7 +54,6 @@ You can also save rolls that you use often to allow you to reroll them quickly. 
 To do this, type `/save`, press enter, enter the name, e.g. fireball, press enter, type in the roll, e.g. 6d6, and hit enter.
 To roll it, simply type `/roll fireball`.
 The `list` and `clear` commands allow you to interact with your roll shortcuts. The `list` command lists all saved rolls and the `clear` command clears the specified shortcut, or all of them if not specified. 
-The `clear` command can take an optional argument of a roll name and will clear that roll. 
 
 ### Support
 
