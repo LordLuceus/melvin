@@ -1,6 +1,6 @@
 {
   "name": "melvin",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "An advanced RPG dice and initiative trackerr bot for Discord",
   "main": "dist/index.js",
   "scripts": {
