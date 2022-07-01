@@ -1,45 +1,134 @@
-import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { rollDice } from "../../util/roll-dice";
+import type { DiceRoll } from "@dice-roller/rpg-dice-roller";
+import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
+import type { CommandInteraction } from "discord.js";
+import { chunkString } from "../../util/chunkString";
+import { writeLog } from "../../util/log";
+import { rollDice } from "../../util/rollDice";
 
 export default class RollCommand extends Command {
-  constructor(client: CommandoClient) {
-    super(client, {
+  constructor(context: Command.Context) {
+    super(context, {
       name: "roll",
-      aliases: ["r"],
-      group: "dice",
-      memberName: "roll",
       description: "Roll dice",
-      details: "Roll dice using standard RPG dice notation (xdy)",
-      examples: [
-        "?roll 2d8+5",
-        "?roll 4d6kh3",
-        "?roll 2d20kl1+11",
-        "?roll d20ro+12",
-      ],
-      throttling: {
-        usages: 1,
-        duration: 3,
-      },
-      args: [
-        {
-          key: "notation",
-          prompt: "What the frig? I require dice, you fool!",
-          type: "string",
-        },
-      ],
+      cooldownLimit: 1,
+      cooldownDelay: 3000,
     });
   }
 
-  run(message: CommandoMessage, { notation }: { notation: string }) {
-    const roll = rollDice(notation, this.client, message);
-    return message.reply(roll.output, {
-      split: {
-        char: " ",
-      },
-    });
+  public override registerApplicationCommands(registry: Command.Registry) {
+    registry.registerChatInputCommand(
+      (builder) =>
+        builder
+          .setName(this.name)
+          .setDescription(this.description)
+          .addStringOption((option) =>
+            option
+              .setName("dice")
+              .setDescription("The dice to roll")
+              .setRequired(true)
+          )
+          .addIntegerOption((option) =>
+            option
+              .setName("repetitions")
+              .setDescription("The number of times to roll the dice")
+              .setMinValue(2)
+              .setMaxValue(10)
+          )
+          .addStringOption((option) =>
+            option
+              .setName("output")
+              .setDescription(
+                "Display the average, minimum, or maximum possible value for the provided dice"
+              )
+              .addChoices(
+                { name: "average", value: "averageTotal" },
+                { name: "minimum", value: "minTotal" },
+                { name: "maximum", value: "maxTotal" }
+              )
+          ),
+      {
+        behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
+      }
+    );
   }
 
-  onError(err: Error, message: CommandoMessage) {
-    return message.reply(`What the frig? Foolish Steve! ${err.message}`);
+  public async chatInputRun(interaction: CommandInteraction) {
+    const notation = interaction.options
+      .getString("dice")
+      ?.toLowerCase()
+      .trim();
+    const repetitions = interaction.options.getInteger("repetitions");
+    const display = interaction.options.getString("output") || "output";
+
+    if (notation) {
+      if (repetitions) {
+        try {
+          const rolls = await rollDice(
+            Array(repetitions).fill(notation),
+            interaction.user.id,
+            interaction.guild?.id
+          );
+          return RollCommand.composeReply(interaction, rolls, display);
+        } catch (err: any) {
+          return this.handleError(err, interaction);
+        }
+      }
+      try {
+        const roll = await rollDice(
+          notation,
+          interaction.user.id,
+          interaction.guild?.id
+        );
+        return RollCommand.composeReply(interaction, roll, display);
+      } catch (err: any) {
+        return this.handleError(err, interaction);
+      }
+    }
+    return null;
+  }
+
+  private handleError(err: any, interaction: CommandInteraction) {
+    writeLog(LogLevel.Error, this.name, err.message);
+    return interaction.reply(
+      `${interaction.user.toString()}: What the frig? Foolish Steve! \`${
+        err.message
+      }\``
+    );
+  }
+
+  private static async composeReply(
+    interaction: CommandInteraction,
+    roll: DiceRoll | DiceRoll[],
+    output: string
+  ) {
+    const author = interaction.user.toString();
+    let result: string;
+    if (output === "output") {
+      result = Array.isArray(roll)
+        ? roll.map((r) => r.output).join("\n")
+        : roll.output;
+    } else {
+      result = Array.isArray(roll)
+        ? roll
+            .map(
+              (r) =>
+                `${r.notation} [${output.slice(0, -5)}]: ${
+                  r[output as keyof typeof r]
+                }`
+            )
+            .join("\n")
+        : `${roll.notation} [${output.slice(0, -5)}]: ${
+            roll[output as keyof typeof roll]
+          }`;
+    }
+    const reply = `${author}: ${result}`;
+    if (reply.length > 2000) {
+      const delimiter = reply.includes("\n") ? "\n" : " ";
+      const messages = chunkString(reply, delimiter);
+      const followups = messages.slice(1);
+      await interaction.reply(messages[0]);
+      return followups.forEach((r) => interaction.followUp(r));
+    }
+    return interaction.reply(reply);
   }
 }

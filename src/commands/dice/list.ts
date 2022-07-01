@@ -1,39 +1,73 @@
-import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { RollSettings } from "../../util/types";
+import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
+import type { CommandInteraction } from "discord.js";
+import { Guild } from "../../entities/Guild";
+import { Roll } from "../../entities/Roll";
+import { User } from "../../entities/User";
+import { chunkString } from "../../util/chunkString";
+import { writeLog } from "../../util/log";
 
-export default class ListCommand extends Command {
-  constructor(client: CommandoClient) {
-    super(client, {
+export class ListCommand extends Command {
+  constructor(context: Command.Context) {
+    super(context, {
       name: "list",
-      group: "dice",
-      memberName: "list",
       description: "List your saved rolls",
-      throttling: {
-        usages: 1,
-        duration: 5,
+      chatInputCommand: {
+        register: true,
+        behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
       },
+      preconditions: ["GuildOnly"],
+      cooldownDelay: 5000,
+      cooldownLimit: 1,
     });
   }
 
-  run(message: CommandoMessage) {
-    const savedSettings = this.client.provider.get(message.guild, "rolls");
-    if (!savedSettings) {
-      return message.reply("You haven't saved any rolls.");
+  public async chatInputRun(interaction: CommandInteraction) {
+    const { manager } = this.container.database;
+    try {
+      const savedUser = await manager.findOneBy(User, {
+        id: interaction.user.id,
+      });
+
+      if (!savedUser) {
+        return interaction.reply({
+          content: "You have no saved rolls. Try using the `/save` command.",
+          ephemeral: true,
+        });
+      }
+      const savedGuild = await manager.findOneBy(Guild, {
+        id: interaction.guild?.id,
+      });
+
+      if (savedGuild && savedUser) {
+        const rolls = await manager.findBy(Roll, {
+          guild: savedGuild,
+          user: savedUser,
+        });
+        if (rolls.length === 0) {
+          return interaction.reply({
+            content: "No roll shortcuts found.",
+            ephemeral: true,
+          });
+        }
+        const rollList = rolls.map((r) => `${r.name}: ${r.value}`);
+        const reply = rollList.join("\n");
+        if (reply.length > 2000) {
+          const messages = chunkString(reply, "\n");
+          const followups = messages.slice(1);
+          await interaction.reply({ content: messages[0], ephemeral: true });
+          return followups.forEach((r) =>
+            interaction.followUp({ content: r, ephemeral: true })
+          );
+        }
+        return interaction.reply({
+          content: reply,
+          ephemeral: true,
+        });
+      }
+    } catch (err: any) {
+      writeLog(LogLevel.Error, this.name, err.message);
+      return interaction.reply(`What the frig? \`${err.message}\``);
     }
-
-    const parsedSettings: RollSettings = JSON.parse(savedSettings);
-    if (!parsedSettings[message.author.id]) {
-      return message.reply("You haven't saved any rolls.");
-    }
-
-    const listString = JSON.stringify(
-      parsedSettings[message.author.id],
-      null,
-      2
-    )
-      .replace(/["\{\}]|^ +/gm, "")
-      .trim();
-
-    return message.reply(listString, { split: { char: "\n" } });
+    return null;
   }
 }
