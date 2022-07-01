@@ -2,7 +2,7 @@
 
 **An advanced RPG dice bot for Discord**
 
-> Note: Melvin has been rewritten to support slash commands. All current functionality, and some that is brand new, remains available in the form of slash commands.  If you're currently using Melvin in your server, the transition may have caused Melvin to stop working for you altogether. If this is the case, please reinvite Melvin using the invite link below or at the top of the top.gg page. Thank you for your understanding.
+> Note: Melvin has been rewritten to support slash commands. All current functionality, and some that is brand new, remains available in the form of slash commands. If you're currently using Melvin in your server, the transition may have caused Melvin to stop working for you altogether. If this is the case, please reinvite Melvin using the invite link below or at the top of the top.gg page. Thank you for your understanding.
 
 ## [Invite Melvin to your server](https://discord.com/api/oauth2/authorize?client_id=813806889657434173&permissions=0&scope=bot%20applications.commands)
 
@@ -33,11 +33,13 @@
 Note that the modifiers which affect the dice rolls themselves (min, max, k etc) must come before any numerical modifiers (+4). So: `/roll 2d20kh1+9` is valid, but `/roll 2d20+9kh1` is not.
 
 The roll command has several options that you can make use of. The first of these is the repeat option. For example, to use this option to roll 4d6kh3 six times (D&D stat generation), do the following:
+
 1. Type `/roll`.
 2. Type in the dice you wish to roll: `4d6kh3`.
 3. Hit down arrow and choose the repeat option.
 4. Type in the amount of times you wish to roll these dice: `6`.
 5. Hit enter. The output should look as follows:
+
 ```
 4d6kh3: [3, 5, 1d, 4] = 12
 4d6kh3: [1d, 4, 4, 6] = 14
@@ -46,14 +48,29 @@ The roll command has several options that you can make use of. The first of thes
 4d6kh3: [1d, 1, 2, 6] = 9
 4d6kh3: [5d, 5, 5, 6] = 16
 ```
+
+Note that the repeat option supports up to a maximum of ten repetitions.
+
 The output option allows you to output information about the dice you have specified. It can output the minimum, maximum, or the average roll  that is possible with those dice.
 
 ### Roll Shortcuts
 
 You can also save rolls that you use often to allow you to reroll them quickly. These roll shortcuts are tied both to you and the server. This means that you can have the same shortcut on multiple servers and have them all be different rolls.
+
 To do this, type `/save`, press enter, enter the name, e.g. fireball, press enter, type in the roll, e.g. 6d6, and hit enter.
+
 To roll it, simply type `/roll fireball`.
-The `list` and `clear` commands allow you to interact with your roll shortcuts. The `list` command lists all saved rolls and the `clear` command clears the specified shortcut, or all of them if not specified. 
+
+If you try to save a shortcut that already exists, you will be asked if you want to overwrite it.
+
+The power of roll shortcuts is that you can include more than one in a single roll, and even combine them with normal dice notations. For example, you can do something like this: `/roll adv+atk+5`. Let's break that down:
+
+- `adv`: expands to `2d20kh1`, D&D 5e advantage.
+- `atk`: expands to your attack modifier.
+
+So, when your attack modifier changes, you can simply update the `atk` shortcut and use it like before.
+
+The `list` and `clear` commands allow you to interact with your roll shortcuts. The `list` command lists all saved rolls and the `clear` command clears the specified shortcut, or all of them if not specified.
 
 ### Support
 
