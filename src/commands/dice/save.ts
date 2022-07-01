@@ -1,115 +1,266 @@
-import { CollectorFilter, MessageReaction, User } from "discord.js";
-import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { RollSettings } from "../../util/types";
+import { Parser } from "@dice-roller/rpg-dice-roller";
+import { isMessageInstance } from "@sapphire/discord.js-utilities";
+import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
+import type {
+  CommandInteraction,
+  MessageComponentInteraction
+} from "discord.js";
+import { AddComponents } from "discord.js-components";
+import { Guild } from "../../entities/Guild";
+import { Roll } from "../../entities/Roll";
+import { User } from "../../entities/User";
+import { writeLog } from "../../util/log";
 
-export default class SaveCommand extends Command {
-  constructor(client: CommandoClient) {
-    super(client, {
+export class SaveCommand extends Command {
+  constructor(context: Command.Context) {
+    super(context, {
       name: "save",
       description: "Save a dice roll for easy access",
-      group: "dice",
-      memberName: "save",
-      throttling: {
-        usages: 1,
-        duration: 5,
-      },
-      examples: ["?save fireball 8d6", "?save coneOfCold 8d8min2+5"],
-      guildOnly: true,
-      args: [
-        {
-          key: "name",
-          prompt: "What are you trying to save?",
-          type: "string",
-        },
-        {
-          key: "value",
-          prompt: "What value are you saving?",
-          type: "string",
-        },
-      ],
+      cooldownDelay: 5000,
+      cooldownLimit: 1,
+      preconditions: ["GuildOnly"],
     });
   }
 
-  async run(
-    message: CommandoMessage,
-    { name, value }: { name: string; value: string }
-  ) {
-    let savedSettings = this.client.provider.get(message.guild, "rolls");
-    if (!savedSettings) {
-      savedSettings = await this.client.provider.set(
-        message.guild,
-        "rolls",
-        JSON.stringify({})
-      );
-    }
-
-    const parsedSettings: RollSettings = JSON.parse(savedSettings);
-    if (
-      parsedSettings[message.author.id] &&
-      parsedSettings[message.author.id][name]
-    ) {
-      const filter: CollectorFilter = (
-        reaction: MessageReaction,
-        user: User
-      ) => {
-        return (
-          ["😄", "😦"].includes(reaction.emoji.name) &&
-          user.id === message.author.id
-        );
-      };
-
-      const reply = await message.reply(
-        `The roll \`${name}\` already exists. Do you want to overwrite it?`
-      );
-      await reply.react("😄");
-      await reply.react("😦");
-
-      try {
-        const collected = await reply.awaitReactions(filter, {
-          max: 1,
-          time: 30000,
-          errors: ["time"],
-        });
-        const reaction = collected.first();
-
-        if (reaction?.emoji.name === "😄") {
-          await this.save(parsedSettings, message, name, value);
-
-          return message.reply(
-            `\`${name}\` saved with new value \`${value}\`.`
-          );
-        }
-
-        return message.reply(`\`${name}\` will not be overwritten.`);
-      } catch {
-        return message.reply(`\`${name}\` will not be overwritten.`);
+  public override registerApplicationCommands(registry: Command.Registry) {
+    registry.registerChatInputCommand(
+      (builder) =>
+        builder
+          .setName(this.name)
+          .setDescription(this.description)
+          .addStringOption((option) =>
+            option
+              .setName("name")
+              .setDescription("The name by which you'll refer to this roll")
+              .setRequired(true)
+          )
+          .addStringOption((option) =>
+            option
+              .setName("value")
+              .setDescription("The dice roll to save")
+              .setRequired(true)
+          ),
+      {
+        behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
       }
-    }
-
-    await this.save(parsedSettings, message, name, value);
-
-    return message.reply(
-      `Saved \`${value}\` as \`${name}\`. Use ${message.anyUsage(
-        "roll $" + name
-      )} to roll the saved dice.`
     );
   }
 
-  private async save(
-    parsedSettings: RollSettings,
-    message: CommandoMessage,
-    name: string,
-    value: string
-  ) {
-    parsedSettings[message.author.id] = {
-      ...parsedSettings[message.author.id],
-      [name]: value,
-    };
+  public async chatInputRun(interaction: CommandInteraction) {
+    const name = interaction.options.getString("name")?.toLowerCase().trim();
+    const notation = interaction.options
+      .getString("value")
+      ?.toLowerCase()
+      .trim();
+    const { guild } = interaction;
 
-    await this.client.provider.set(
-      message.guild,
-      "rolls",
-      JSON.stringify(parsedSettings)
-    );
+    if (name && notation && guild) {
+      try {
+        try {
+          Parser.parse(notation);
+        } catch (err: any) {
+          writeLog(LogLevel.Error, this.name, err.message);
+          return interaction.reply({
+            content: `\`${notation}\` is not a valid dice notation.`,
+            ephemeral: true,
+          });
+        }
+
+        const regex = /\W+/;
+        if (regex.test(name)) {
+          return interaction.reply({
+            content: "A roll shortcut cannot contain any special characters.",
+            ephemeral: true,
+          });
+        }
+        const savedUser = await this.findUser(interaction.user.id);
+
+        const saved = await this.save(
+          name,
+          notation,
+          interaction.user.id,
+          guild.id
+        );
+        if (!saved) {
+          const reply = await SaveCommand.composeReply(
+            interaction,
+            name,
+            notation,
+            {
+              confirm: true,
+            }
+          );
+
+          const filter = (i: MessageComponentInteraction) => {
+            i.deferUpdate();
+            return i.user.id === interaction.user.id;
+          };
+
+          if (isMessageInstance(reply)) {
+            const response = await reply.awaitMessageComponent({
+              filter,
+              componentType: "BUTTON",
+              time: 30000,
+            });
+            if (response.customId === "1") {
+              await this.save(
+                name,
+                notation,
+                interaction.user.id,
+                guild.id,
+                true
+              );
+              return SaveCommand.composeReply(interaction, name, notation, {
+                edit: true,
+              });
+            }
+            return interaction.editReply({
+              content: "Okay. The roll shortcut will not be overwritten.",
+              components: [],
+            });
+          }
+        }
+        return SaveCommand.composeReply(interaction, name, notation, {
+          firstTime: !savedUser,
+        });
+      } catch (err: any) {
+        writeLog(LogLevel.Error, this.name, err.message);
+        return interaction.reply(`What the frig? \`${err.message}\``);
+      }
+    }
+    return null;
+  }
+
+  private async findUser(id: string): Promise<User | null> {
+    const { manager } = this.container.database;
+
+    const savedUser = await manager.findOne(User, { where: { id } });
+    return savedUser;
+  }
+
+  private async save(
+    name: string,
+    notation: string,
+    userId: string,
+    guildId: string,
+    overwrite?: boolean
+  ): Promise<boolean> {
+    const { manager } = this.container.database;
+
+    const savedGuild = await manager.findOne(Guild, {
+      where: { id: guildId },
+    });
+
+    const savedUser = await this.findUser(userId);
+
+    const roll = manager.create(Roll, { name, value: notation });
+
+    if (overwrite) {
+      if (savedGuild && savedUser) {
+        const savedRoll = await manager.findOne(Roll, {
+          where: { name, user: savedUser, guild: savedGuild },
+        });
+        if (savedRoll) {
+          await manager.remove(savedRoll);
+          roll.guild = savedGuild;
+          roll.user = savedUser;
+          await manager.save(roll);
+          return true;
+        }
+      }
+    }
+
+    if (!savedGuild) {
+      if (!savedUser) {
+        // If there's no user or guild, we make everything from scratch.
+        const user = manager.create(User, {
+          id: userId,
+        });
+        const guild = manager.create(Guild, {
+          id: guildId,
+        });
+        roll.user = user;
+        roll.guild = guild;
+        user.guilds = [guild];
+        await manager.save([guild, user, roll]);
+        return true;
+      }
+      // We have a user, but no guild.
+      const guild = manager.create(Guild, {
+        id: guildId,
+      });
+      roll.user = savedUser;
+      roll.guild = guild;
+      savedUser.guilds.push(guild);
+      await manager.save([guild, savedUser, roll]);
+      return true;
+    }
+    // We have a guild.
+
+    if (!savedUser) {
+      const user = manager.create(User, {
+        id: userId,
+      });
+      roll.user = user;
+      roll.guild = savedGuild;
+      user.guilds = [savedGuild];
+      await manager.save([savedGuild, user, roll]);
+      return true;
+    }
+
+    const savedRoll = await manager.findOne(Roll, {
+      where: { name, guild: savedGuild, user: savedUser },
+    });
+    if (savedRoll) {
+      return false;
+    }
+
+    roll.user = savedUser;
+    roll.guild = savedGuild;
+    await manager.save(roll);
+    return true;
+  }
+
+  private static async composeReply(
+    interaction: CommandInteraction,
+    name: string,
+    notation: string,
+    options?: {
+      firstTime?: boolean;
+      confirm?: boolean;
+      edit?: boolean;
+    }
+  ) {
+    if (options?.confirm) {
+      const reply = await interaction.reply({
+        content: `You have already saved a roll shortcut with the name \`${name}\`. Would you like to overwrite it?`,
+        ephemeral: true,
+        fetchReply: true,
+        components: AddComponents({
+          type: "BUTTON",
+          options: [
+            { customId: "1", label: "Yes", style: "SUCCESS" },
+            { customId: "2", label: "No", style: "DANGER" },
+          ],
+        }),
+      });
+
+      return reply;
+    }
+    if (options?.edit) {
+      return interaction.editReply({
+        content: `Roll \`${notation}\` saved as \`${name}\`.`,
+        components: [],
+      });
+    }
+    return interaction.reply({
+      content: `Roll \`${notation}\` saved as \`${name}\`. ${
+        options?.firstTime
+          ? "You can include your roll shortcuts when using the `/roll` command by just typing their names. They will automatically be replaced with their corresponding values."
+          : ""
+      }`,
+      ephemeral: true,
+      fetchReply: true,
+    });
   }
 }

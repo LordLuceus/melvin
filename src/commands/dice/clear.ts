@@ -1,66 +1,94 @@
-import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { Message } from "discord.js";
-import { RollSettings } from "../../util/types";
+import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
+import { CommandInteraction } from "discord.js";
+import { Guild } from "../../entities/Guild";
+import { Roll } from "../../entities/Roll";
+import { User } from "../../entities/User";
+import { writeLog } from "../../util/log";
 
-export default class ClearCommand extends Command {
-  constructor(client: CommandoClient) {
-    super(client, {
+export class ClearCommand extends Command {
+  constructor(context: Command.Context) {
+    super(context, {
       name: "clear",
-      description: "Delete specific rolls or wipe all your saved rolls",
-      details:
-        "You can use this command with no arguments to clear all your saved rolls, or you can specify a roll name to clear. You can also clear multiple rolls at once by specifying multiple names separated by spaces.",
-      group: "dice",
-      memberName: "clear",
-      guildOnly: true,
-      throttling: {
-        usages: 1,
-        duration: 5,
-      },
-      args: [
-        {
-          type: "string",
-          key: "rolls",
-          prompt: "Which roll(s) to clear?",
-          default: ["all"],
-          infinite: true,
-        },
-      ],
-      examples: ["?clear", "?clear fireball", "?clear fireball dexSave"],
+      description: "Remove your roll shortcuts",
+      cooldownDelay: 5000,
+      cooldownLimit: 1,
+      preconditions: ["GuildOnly"],
     });
   }
 
-  async run(message: CommandoMessage, { rolls: rolls }: { rolls: string[] }) {
-    const savedSettings = this.client.provider.get(message.guild, "rolls");
-    if (!savedSettings) {
-      return message.reply("There are no saved rolls to clear.");
-    }
-
-    const parsedSettings: RollSettings = JSON.parse(savedSettings);
-    if (!parsedSettings[message.author.id]) {
-      return message.reply("You have no saved rolls.");
-    }
-
-    let reply: Message | null = null;
-    for (const roll of rolls) {
-      if (parsedSettings[message.author.id][roll]) {
-        delete parsedSettings[message.author.id][roll];
-        if (Object.keys(parsedSettings[message.author.id]).length === 0) {
-          delete parsedSettings[message.author.id];
-        }
-        reply = await message.reply(`Roll \`${roll}\` was cleared.`);
-      } else if (!parsedSettings[message.author.id][roll] && roll !== "all") {
-        reply = await message.reply(`The roll \`${roll}\` does not exist.`);
-      } else {
-        delete parsedSettings[message.author.id];
-        reply = await message.reply("Rolls cleared.");
+  public override registerApplicationCommands(registry: Command.Registry) {
+    registry.registerChatInputCommand(
+      (builder) =>
+        builder
+          .setName(this.name)
+          .setDescription(this.description)
+          .addStringOption((option) =>
+            option.setName("roll").setDescription("The roll to clear")
+          ),
+      {
+        behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
       }
-    }
-    await this.client.provider.set(
-      message.guild,
-      "rolls",
-      JSON.stringify(parsedSettings)
     );
+  }
 
-    return reply;
+  public async chatInputRun(interaction: CommandInteraction) {
+    const { manager } = this.container.database;
+    const roll = interaction.options.getString("roll")?.toLowerCase().trim();
+
+    try {
+      const savedUser = await manager.findOneBy(User, {
+        id: interaction.user.id,
+      });
+      if (!savedUser) {
+        return interaction.reply({
+          content: "You have not saved any roll shortcuts.",
+          ephemeral: true,
+        });
+      }
+
+      const savedGuild = await manager.findOneBy(Guild, {
+        id: interaction.guild?.id,
+      });
+      if (!savedGuild) {
+        return interaction.reply({
+          content: "You have not saved any roll shortcuts on this server.",
+          ephemeral: true,
+        });
+      }
+
+      const rolls = await manager.findBy(Roll, {
+        user: savedUser,
+        guild: savedGuild,
+      });
+      if (rolls.length === 0) {
+        return interaction.reply({
+          content: "No roll shortcuts found.",
+          ephemeral: true,
+        });
+      }
+
+      if (!roll) {
+        await manager.remove(rolls);
+        return interaction.reply({
+          content: "Your roll shortcuts have been cleared.",
+          ephemeral: true,
+        });
+      }
+      const savedRoll = rolls.find((r) => r.name === roll);
+      if (!savedRoll) {
+        return interaction.reply({
+          content: "Roll shortcut not found.",
+          ephemeral: true,
+        });
+      }
+      await manager.remove(savedRoll);
+      return interaction.reply({
+        content: "Roll shortcut cleared.",
+        ephemeral: true,
+      });
+    } catch (err: any) {
+      writeLog(LogLevel.Error, this.name, err.message);
+      return interaction.reply(`What the frig? \`${err.message}\``);
+    }
   }
 }
