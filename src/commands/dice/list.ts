@@ -14,7 +14,6 @@ export class ListCommand extends Command {
       chatInputCommand: {
         register: true,
         behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
-        guildIds: ["513474679583801394"],
       },
       preconditions: ["GuildOnly"],
       cooldownDelay: 5000,

@@ -47,7 +47,6 @@ export default class RollCommand extends Command {
               )
           ),
       {
-        guildIds: ["513474679583801394"],
         behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
       }
     );

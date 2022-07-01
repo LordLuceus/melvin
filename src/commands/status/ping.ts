@@ -11,8 +11,8 @@ export class PingCommand extends Command {
       cooldownLimit: 1,
       chatInputCommand: {
         register: true,
-        guildIds: ["513474679583801394"],
       },
+      preconditions: ["OwnerOnly"],
     });
   }
 

@@ -26,7 +26,6 @@ export class ClearCommand extends Command {
             option.setName("roll").setDescription("The roll to clear")
           ),
       {
-        guildIds: ["513474679583801394"],
         behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
       }
     );

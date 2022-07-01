@@ -10,7 +10,6 @@ export class StatusCommand extends Command {
       preconditions: ["OwnerOnly"],
       chatInputCommand: {
         register: true,
-        guildIds: ["513474679583801394"],
       },
     });
   }

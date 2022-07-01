@@ -3,7 +3,7 @@ import { isMessageInstance } from "@sapphire/discord.js-utilities";
 import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
 import type {
   CommandInteraction,
-  MessageComponentInteraction,
+  MessageComponentInteraction
 } from "discord.js";
 import { AddComponents } from "discord.js-components";
 import { Guild } from "../../entities/Guild";
@@ -41,7 +41,6 @@ export class SaveCommand extends Command {
               .setRequired(true)
           ),
       {
-        guildIds: ["513474679583801394"],
         behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
       }
     );
