@@ -8,7 +8,7 @@ export class GuildDeleteListener extends Listener {
     this.container.client.user?.setActivity({
       type: ActivityTypes.PLAYING,
       // name: `havoc with ${this.container.client.guilds.cache.size} servers.`,
-      name: "Reinvite me if I'm not working: https://discord.com/api/oauth2/authorize?client_id=813806889657434173&permissions=0&scope=bot%20applications.commands",
+      name: "https://github.com/lordluceus/melvin",
     });
     writeLog(LogLevel.Info, this.name, `Left guild ${guild.name}`);
   }
