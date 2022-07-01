@@ -91,9 +91,9 @@ export default class RollCommand extends Command {
   private handleError(err: any, interaction: CommandInteraction) {
     writeLog(LogLevel.Error, this.name, err.message);
     return interaction.reply(
-      `${interaction.user.toString()}: What the frig? Foolish Steve! ${
+      `${interaction.user.toString()}: What the frig? Foolish Steve! \`${
         err.message
-      }`
+      }\``
     );
   }
 

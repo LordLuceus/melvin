@@ -1,8 +1,9 @@
-import { Command, RegisterBehavior } from "@sapphire/framework";
+import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
 import { CommandInteraction } from "discord.js";
 import { Guild } from "../../entities/Guild";
 import { Roll } from "../../entities/Roll";
 import { User } from "../../entities/User";
+import { writeLog } from "../../util/log";
 
 export class ClearCommand extends Command {
   constructor(context: Command.Context) {
@@ -35,55 +36,60 @@ export class ClearCommand extends Command {
     const { manager } = this.container.database;
     const roll = interaction.options.getString("roll")?.toLowerCase().trim();
 
-    const savedUser = await manager.findOneBy(User, {
-      id: interaction.user.id,
-    });
-    if (!savedUser) {
-      return interaction.reply({
-        content: "You have not saved any roll shortcuts.",
-        ephemeral: true,
+    try {
+      const savedUser = await manager.findOneBy(User, {
+        id: interaction.user.id,
       });
-    }
+      if (!savedUser) {
+        return interaction.reply({
+          content: "You have not saved any roll shortcuts.",
+          ephemeral: true,
+        });
+      }
 
-    const savedGuild = await manager.findOneBy(Guild, {
-      id: interaction.guild?.id,
-    });
-    if (!savedGuild) {
-      return interaction.reply({
-        content: "You have not saved any roll shortcuts on this server.",
-        ephemeral: true,
+      const savedGuild = await manager.findOneBy(Guild, {
+        id: interaction.guild?.id,
       });
-    }
+      if (!savedGuild) {
+        return interaction.reply({
+          content: "You have not saved any roll shortcuts on this server.",
+          ephemeral: true,
+        });
+      }
 
-    const rolls = await manager.findBy(Roll, {
-      user: savedUser,
-      guild: savedGuild,
-    });
-    if (rolls.length === 0) {
-      return interaction.reply({
-        content: "No roll shortcuts found.",
-        ephemeral: true,
+      const rolls = await manager.findBy(Roll, {
+        user: savedUser,
+        guild: savedGuild,
       });
-    }
+      if (rolls.length === 0) {
+        return interaction.reply({
+          content: "No roll shortcuts found.",
+          ephemeral: true,
+        });
+      }
 
-    if (!roll) {
-      await manager.remove(rolls);
+      if (!roll) {
+        await manager.remove(rolls);
+        return interaction.reply({
+          content: "Your roll shortcuts have been cleared.",
+          ephemeral: true,
+        });
+      }
+      const savedRoll = rolls.find((r) => r.name === roll);
+      if (!savedRoll) {
+        return interaction.reply({
+          content: "Roll shortcut not found.",
+          ephemeral: true,
+        });
+      }
+      await manager.remove(savedRoll);
       return interaction.reply({
-        content: "Your roll shortcuts have been cleared.",
+        content: "Roll shortcut cleared.",
         ephemeral: true,
       });
+    } catch (err: any) {
+      writeLog(LogLevel.Error, this.name, err.message);
+      return interaction.reply(`What the frig? \`${err.message}\``);
     }
-    const savedRoll = rolls.find((r) => r.name === roll);
-    if (!savedRoll) {
-      return interaction.reply({
-        content: "Roll shortcut not found.",
-        ephemeral: true,
-      });
-    }
-    await manager.remove(savedRoll);
-    return interaction.reply({
-      content: "Roll shortcut cleared.",
-      ephemeral: true,
-    });
   }
 }

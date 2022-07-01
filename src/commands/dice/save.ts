@@ -126,7 +126,7 @@ export class SaveCommand extends Command {
         });
       } catch (err: any) {
         writeLog(LogLevel.Error, this.name, err.message);
-        return interaction.reply(`What the frig? ${err.message}`);
+        return interaction.reply(`What the frig? \`${err.message}\``);
       }
     }
     return null;
