@@ -3,7 +3,7 @@ import { isMessageInstance } from "@sapphire/discord.js-utilities";
 import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
 import type {
   CommandInteraction,
-  MessageComponentInteraction
+  MessageComponentInteraction,
 } from "discord.js";
 import { AddComponents } from "discord.js-components";
 import { Guild } from "../../entities/Guild";
@@ -125,7 +125,10 @@ export class SaveCommand extends Command {
         });
       } catch (err: any) {
         writeLog(LogLevel.Error, this.name, err.message);
-        return interaction.reply(`What the frig? \`${err.message}\``);
+        return interaction.reply({
+          content: `What the frig? \`${err.message}\``,
+          ephemeral: true,
+        });
       }
     }
     return null;
@@ -134,7 +137,10 @@ export class SaveCommand extends Command {
   private async findUser(id: string): Promise<User | null> {
     const { manager } = this.container.database;
 
-    const savedUser = await manager.findOne(User, { where: { id } });
+    const savedUser = await manager.findOne(User, {
+      where: { id },
+      relations: { guilds: true },
+    });
     return savedUser;
   }
 
