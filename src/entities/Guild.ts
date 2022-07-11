@@ -7,11 +7,9 @@ export class Guild {
   @PrimaryColumn({ length: 18 })
   id: string;
 
-  @ManyToMany(() => User, (user) => user.guilds, {
-    eager: true,
-  })
+  @ManyToMany(() => User, (user) => user.guilds)
   users: User[];
 
-  @OneToMany(() => Roll, (roll) => roll.guild, { eager: true })
+  @OneToMany(() => Roll, (roll) => roll.guild)
   rolls: Roll[];
 }

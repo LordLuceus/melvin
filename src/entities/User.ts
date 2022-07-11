@@ -3,7 +3,7 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
-  PrimaryColumn,
+  PrimaryColumn
 } from "typeorm";
 import { Guild } from "./Guild";
 import { Roll } from "./Roll";
@@ -17,6 +17,6 @@ export class User {
   @JoinTable()
   guilds: Guild[];
 
-  @OneToMany(() => Roll, (roll) => roll.user, { eager: true })
+  @OneToMany(() => Roll, (roll) => roll.user)
   rolls: Roll[];
 }
