@@ -38,6 +38,13 @@ export class ListCommand extends Command {
         id: interaction.guild?.id,
       });
 
+      if (!savedGuild) {
+        return interaction.reply({
+          content: "You haven't saved any roll shortcuts in this server.",
+          ephemeral: true,
+        });
+      }
+
       if (savedGuild && savedUser) {
         const rolls = await manager.findBy(Roll, {
           guild: savedGuild,
