@@ -1,10 +1,10 @@
-import { Entity, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
 import { Roll } from "./Roll";
 import { User } from "./User";
 
 @Entity()
 export class Guild {
-  @PrimaryColumn({ length: 18 })
+  @PrimaryColumn({ length: 20 })
   id: string;
 
   @ManyToMany(() => User, (user) => user.guilds)
@@ -12,4 +12,7 @@ export class Guild {
 
   @OneToMany(() => Roll, (roll) => roll.guild)
   rolls: Roll[];
+
+  @Column({ nullable: true, length: 20 })
+  gmChannel?: string;
 }
