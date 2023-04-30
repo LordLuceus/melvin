@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model guild {
+  id                String              @id(map: "PK_cfbbd0a2805cab7053b516068a3") @db.VarChar(20)
+  gmChannel         String?             @db.VarChar(20)
+  roll              roll[]
+  user_guilds_guild user_guilds_guild[]
+}
+
+model roll {
+  id      Int     @id(map: "PK_91319c8ec656321a667986a83c7") @default(autoincrement())
+  name    String  @db.VarChar
+  value   String  @db.VarChar
+  userId  String? @db.VarChar(20)
+  guildId String? @db.VarChar(20)
+  user    user?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_070cea5d3d74c77d89c10d3afd9")
+  guild   guild?  @relation(fields: [guildId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ccf7a0c45ed6b60227ad72792e9")
+}
+
+model user {
+  id                String              @id(map: "PK_cace4a159ff9f2512dd42373760") @db.VarChar(20)
+  roll              roll[]
+  user_guilds_guild user_guilds_guild[]
+}
+
+model user_guilds_guild {
+  userId  String @db.VarChar(20)
+  guildId String @db.VarChar(20)
+  user    user   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_268c9c41599a74c789453b8f418")
+  guild   guild  @relation(fields: [guildId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dacabc915cb73d02369d2d8d72e")
+
+  @@id([userId, guildId], map: "PK_1ff217cdbcda40e548b011abcbd")
+  @@index([userId], map: "IDX_268c9c41599a74c789453b8f41")
+  @@index([guildId], map: "IDX_dacabc915cb73d02369d2d8d72")
+}

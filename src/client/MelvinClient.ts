@@ -1,7 +1,9 @@
 import { DiceRoller } from "@dice-roller/rpg-dice-roller";
+import type { PrismaClient } from "@prisma/client";
 import { container, LogLevel, SapphireClient } from "@sapphire/framework";
 import { DataSource } from "typeorm";
 import { dbConfig } from "../DataSource";
+import { prisma } from "../prisma";
 import { writeLog } from "../util/log";
 
 export class MelvinClient extends SapphireClient {
@@ -19,6 +21,7 @@ export class MelvinClient extends SapphireClient {
 
   public override async login(token: string) {
     container.database = dbConfig;
+    container.prisma = prisma;
 
     container.diceRoller = new DiceRoller();
 
@@ -33,6 +36,7 @@ export class MelvinClient extends SapphireClient {
 
   public override async destroy() {
     await container.database.destroy();
+    await container.prisma.$disconnect();
     return super.destroy();
   }
 }
@@ -42,5 +46,6 @@ declare module "@sapphire/pieces" {
   interface Container {
     database: DataSource;
     diceRoller: DiceRoller;
+    prisma: PrismaClient;
   }
 }
