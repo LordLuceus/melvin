@@ -1,6 +1,7 @@
 import type { DiceRoll } from "@dice-roller/rpg-dice-roller";
 import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
-import type { CommandInteraction } from "discord.js";
+import type { CommandInteraction, TextChannel } from "discord.js";
+import { Guild } from "../../entities/Guild";
 import { chunkString } from "../../util/chunkString";
 import { writeLog } from "../../util/log";
 import { rollDice } from "../../util/rollDice";
@@ -45,6 +46,11 @@ export default class RollCommand extends Command {
                 { name: "minimum", value: "minTotal" },
                 { name: "maximum", value: "maxTotal" }
               )
+          )
+          .addBooleanOption((option) =>
+            option
+              .setName("secret")
+              .setDescription("Only show the result to the game master")
           ),
       {
         behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
@@ -59,6 +65,7 @@ export default class RollCommand extends Command {
       .trim();
     const repetitions = interaction.options.getInteger("repetitions");
     const display = interaction.options.getString("output") || "output";
+    const secret = interaction.options.getBoolean("secret");
 
     if (notation) {
       if (repetitions) {
@@ -68,7 +75,7 @@ export default class RollCommand extends Command {
             interaction.user.id,
             interaction.guild?.id
           );
-          return RollCommand.composeReply(interaction, rolls, display);
+          return this.composeReply(interaction, rolls, display, secret);
         } catch (err: any) {
           return this.handleError(err, interaction);
         }
@@ -79,7 +86,7 @@ export default class RollCommand extends Command {
           interaction.user.id,
           interaction.guild?.id
         );
-        return RollCommand.composeReply(interaction, roll, display);
+        return this.composeReply(interaction, roll, display, secret);
       } catch (err: any) {
         return this.handleError(err, interaction);
       }
@@ -96,13 +103,16 @@ export default class RollCommand extends Command {
     );
   }
 
-  private static async composeReply(
+  private async composeReply(
     interaction: CommandInteraction,
     roll: DiceRoll | DiceRoll[],
-    output: string
+    output: string,
+    secret: boolean | null = false
   ) {
     const author = interaction.user.toString();
     let result: string;
+    let gmChannel: TextChannel | null = null;
+
     if (output === "output") {
       result = Array.isArray(roll)
         ? roll.map((r) => r.output).join("\n")
@@ -121,14 +131,90 @@ export default class RollCommand extends Command {
             roll[output as keyof typeof roll]
           }`;
     }
+
     const reply = `${author}: ${result}`;
-    if (reply.length > 2000) {
-      const delimiter = reply.includes("\n") ? "\n" : " ";
-      const messages = chunkString(reply, delimiter);
-      const followups = messages.slice(1);
-      await interaction.reply(messages[0]);
-      return followups.forEach((r) => interaction.followUp(r));
+
+    if (secret) {
+      gmChannel = await this.getGmChannel(interaction);
+      if (!gmChannel) {
+        return interaction.reply(
+          "The GM channel must be set to use the secret option."
+        );
+      }
+
+      if (
+        interaction.guild?.me &&
+        !gmChannel.permissionsFor(interaction.guild.me)?.has("SEND_MESSAGES")
+      ) {
+        return interaction.reply(
+          `I do not have permission to send messages in ${gmChannel}. Please update my permissions and try again.`
+        );
+      }
     }
-    return interaction.reply(reply);
+
+    if (reply.length > 2000) {
+      const messages = chunkString(reply, ["\n", ", "]);
+      const followups = messages.slice(1);
+
+      if (!secret || gmChannel === interaction.channel) {
+        await interaction.reply(messages[0]);
+        return followups.forEach((r) => interaction.followUp(r));
+      }
+
+      try {
+        messages.forEach((r) => gmChannel?.send(r));
+        return await interaction.reply({
+          content: "Result sent to the GM channel.",
+          ephemeral: true,
+        });
+      } catch (err: any) {
+        writeLog(LogLevel.Error, this.name, err.message);
+
+        return interaction.reply({
+          content: `There was an error sending the result to the GM channel: \`${err.message}\``,
+          ephemeral: true,
+        });
+      }
+    }
+
+    if (!secret || gmChannel === interaction.channel) {
+      return interaction.reply(reply);
+    }
+
+    try {
+      gmChannel?.send(reply);
+
+      return await interaction.reply({
+        content: "Result sent to the GM channel.",
+        ephemeral: true,
+      });
+    } catch (err: any) {
+      writeLog(LogLevel.Error, this.name, err.message);
+
+      return interaction.reply({
+        content: `There was an error sending the result to the GM channel: \`${err.message}\``,
+        ephemeral: true,
+      });
+    }
+  }
+
+  private async getGmChannel(
+    interaction: CommandInteraction
+  ): Promise<TextChannel | null> {
+    const { manager } = this.container.database;
+    const { guild } = interaction;
+    if (!guild) return null;
+
+    const savedGuild = await manager.findOne(Guild, {
+      where: { id: guild.id },
+    });
+
+    if (!savedGuild?.gmChannel) return null;
+
+    const gmChannel = guild.channels.cache.get(savedGuild.gmChannel);
+    if (!gmChannel) return null;
+
+    if (!gmChannel.isText()) return null;
+    return gmChannel as TextChannel;
   }
 }
