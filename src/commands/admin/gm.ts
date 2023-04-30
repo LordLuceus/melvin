@@ -1,7 +1,6 @@
 import { Command, RegisterBehavior } from "@sapphire/framework";
 import { ChannelType } from "discord-api-types/v10";
 import { CommandInteraction, TextChannel } from "discord.js";
-import { Guild } from "../../entities/Guild";
 
 export class GMCommand extends Command {
   constructor(context: Command.Context) {
@@ -35,15 +34,15 @@ export class GMCommand extends Command {
   }
 
   public async chatInputRun(interaction: CommandInteraction) {
-    const { manager } = this.container.database;
+    const { prisma } = this.container;
     const channel = interaction.options.getChannel("channel") as TextChannel;
     const { guild } = interaction;
 
-    if (!channel && guild) {
-      const savedGuild = await manager.findOne(Guild, {
-        where: { id: guild.id },
-      });
+    const savedGuild = await prisma.guild.findUnique({
+      where: { id: guild?.id },
+    });
 
+    if (!channel) {
       if (!savedGuild?.gmChannel) {
         return interaction.reply({
           content: `The game master channel has not been set. Please specify a channel to set as the game master channel.`,
@@ -57,7 +56,7 @@ export class GMCommand extends Command {
       });
     }
 
-    if (channel && guild) {
+    if (guild) {
       try {
         if (
           guild.me &&
@@ -69,16 +68,13 @@ export class GMCommand extends Command {
           });
         }
 
-        const savedGuild = await manager.findOne(Guild, {
-          where: { id: guild.id },
-        });
-
         if (!savedGuild) {
-          const newGuild = await manager.create(Guild, {
-            id: guild.id,
-            gmChannel: channel.id,
+          await prisma.guild.create({
+            data: {
+              id: guild.id,
+              gmChannel: channel.id,
+            },
           });
-          await manager.save(newGuild);
 
           return await interaction.reply({
             content: `The game master channel has been set to ${channel}`,
@@ -93,8 +89,12 @@ export class GMCommand extends Command {
           });
         }
 
-        savedGuild.gmChannel = channel.id;
-        await manager.save(savedGuild);
+        await prisma.guild.update({
+          where: { id: guild.id },
+          data: {
+            gmChannel: channel.id,
+          },
+        });
 
         return await interaction.reply({
           content: `The game master channel has been set to ${channel}`,
