@@ -7,7 +7,7 @@ import { writeLog } from "../util/log";
 export class MelvinClient extends SapphireClient {
   constructor() {
     super({
-      intents: ["GUILDS", "GUILD_MEMBERS"],
+      intents: ["GUILDS"],
       logger: {
         level:
           process.env.NODE_ENV === "development"
