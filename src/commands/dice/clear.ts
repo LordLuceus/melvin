@@ -1,8 +1,5 @@
 import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
 import { CommandInteraction } from "discord.js";
-import { Guild } from "../../entities/Guild";
-import { Roll } from "../../entities/Roll";
-import { User } from "../../entities/User";
 import { writeLog } from "../../util/log";
 
 export class ClearCommand extends Command {
@@ -32,13 +29,14 @@ export class ClearCommand extends Command {
   }
 
   public async chatInputRun(interaction: CommandInteraction) {
-    const { manager } = this.container.database;
+    const { prisma } = this.container;
     const roll = interaction.options.getString("roll")?.toLowerCase().trim();
 
     try {
-      const savedUser = await manager.findOneBy(User, {
-        id: interaction.user.id,
+      const savedUser = await prisma.user.findUnique({
+        where: { id: interaction.user.id },
       });
+
       if (!savedUser) {
         return interaction.reply({
           content: "You have not saved any roll shortcuts.",
@@ -46,9 +44,10 @@ export class ClearCommand extends Command {
         });
       }
 
-      const savedGuild = await manager.findOneBy(Guild, {
-        id: interaction.guild?.id,
+      const savedGuild = await prisma.guild.findUnique({
+        where: { id: interaction.guild?.id },
       });
+
       if (!savedGuild) {
         return interaction.reply({
           content: "You have not saved any roll shortcuts on this server.",
@@ -56,10 +55,13 @@ export class ClearCommand extends Command {
         });
       }
 
-      const rolls = await manager.findBy(Roll, {
-        user: savedUser,
-        guild: savedGuild,
+      const rolls = await prisma.roll.findMany({
+        where: {
+          guild: { id: interaction.guild?.id },
+          user: { id: interaction.user.id },
+        },
       });
+
       if (rolls.length === 0) {
         return interaction.reply({
           content: "No roll shortcuts found.",
@@ -68,12 +70,19 @@ export class ClearCommand extends Command {
       }
 
       if (!roll) {
-        await manager.remove(rolls);
+        await prisma.roll.deleteMany({
+          where: {
+            guild: { id: interaction.guild?.id },
+            user: { id: interaction.user.id },
+          },
+        });
+
         return interaction.reply({
           content: "Your roll shortcuts have been cleared.",
           ephemeral: true,
         });
       }
+
       const savedRoll = rolls.find((r) => r.name === roll);
       if (!savedRoll) {
         return interaction.reply({
@@ -81,7 +90,11 @@ export class ClearCommand extends Command {
           ephemeral: true,
         });
       }
-      await manager.remove(savedRoll);
+
+      await prisma.roll.delete({
+        where: { id: savedRoll.id },
+      });
+
       return interaction.reply({
         content: "Roll shortcut cleared.",
         ephemeral: true,
