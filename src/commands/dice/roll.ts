@@ -1,7 +1,6 @@
 import type { DiceRoll } from "@dice-roller/rpg-dice-roller";
 import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
 import type { CommandInteraction, TextChannel } from "discord.js";
-import { Guild } from "../../entities/Guild";
 import { chunkString } from "../../util/chunkString";
 import { writeLog } from "../../util/log";
 import { rollDice } from "../../util/rollDice";
@@ -207,11 +206,12 @@ export default class RollCommand extends Command {
   private async getGmChannel(
     interaction: CommandInteraction
   ): Promise<TextChannel | null> {
-    const { manager } = this.container.database;
+    const { prisma } = this.container;
+
     const { guild } = interaction;
     if (!guild) return null;
 
-    const savedGuild = await manager.findOne(Guild, {
+    const savedGuild = await prisma.guild.findUnique({
       where: { id: guild.id },
     });
 
