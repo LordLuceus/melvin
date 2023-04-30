@@ -59,7 +59,7 @@ export class ListCommand extends Command {
         const rollList = rolls.map((r) => `${r.name}: ${r.value}`);
         const reply = rollList.join("\n");
         if (reply.length > 2000) {
-          const messages = chunkString(reply, "\n");
+          const messages = chunkString(reply, ["\n"]);
           const followups = messages.slice(1);
           await interaction.reply({ content: messages[0], ephemeral: true });
           return followups.forEach((r) =>

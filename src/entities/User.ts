@@ -3,14 +3,14 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
-  PrimaryColumn
+  PrimaryColumn,
 } from "typeorm";
 import { Guild } from "./Guild";
 import { Roll } from "./Roll";
 
 @Entity()
 export class User {
-  @PrimaryColumn({ length: 18 })
+  @PrimaryColumn({ length: 20 })
   id: string;
 
   @ManyToMany(() => Guild, (guild) => guild.users, { onDelete: "CASCADE" })

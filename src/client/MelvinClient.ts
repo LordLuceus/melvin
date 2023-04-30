@@ -1,16 +1,13 @@
 import { DiceRoller } from "@dice-roller/rpg-dice-roller";
 import { container, LogLevel, SapphireClient } from "@sapphire/framework";
 import { DataSource } from "typeorm";
-import { database } from "../config/config.json";
-import { Guild } from "../entities/Guild";
-import { Roll } from "../entities/Roll";
-import { User } from "../entities/User";
+import { dbConfig } from "../DataSource";
 import { writeLog } from "../util/log";
 
 export class MelvinClient extends SapphireClient {
   constructor() {
     super({
-      intents: ["GUILDS"],
+      intents: ["GUILDS", "GUILD_MEMBERS"],
       logger: {
         level:
           process.env.NODE_ENV === "development"
@@ -21,20 +18,7 @@ export class MelvinClient extends SapphireClient {
   }
 
   public override async login(token: string) {
-    const { host, username, password, db, port } = database;
-    container.database = new DataSource({
-      type: "postgres",
-      host,
-      port,
-      username,
-      password,
-      database: db,
-      entities: [User, Guild, Roll],
-      synchronize: process.env.NODE_ENV === "development",
-      logging: true,
-      maxQueryExecutionTime: 1000,
-      logger: "file",
-    });
+    container.database = dbConfig;
 
     container.diceRoller = new DiceRoller();
 
