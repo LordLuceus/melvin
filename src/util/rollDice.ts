@@ -1,9 +1,7 @@
+import type { roll } from "@prisma/client";
 import { container } from "@sapphire/pieces";
-import { Guild } from "../entities/Guild";
-import { Roll } from "../entities/Roll";
-import { User } from "../entities/User";
 
-function processNotation(notation: string, regex: RegExp, savedRolls: Roll[]) {
+function processNotation(notation: string, regex: RegExp, savedRolls: roll[]) {
   const rollString = notation.replaceAll(regex, (match) => {
     const foundRoll = savedRolls.find((r) => r.name === match);
     if (foundRoll) {
@@ -19,31 +17,26 @@ export const rollDice = async (
   userId: string,
   guildId?: string
 ) => {
-  const { manager } = container.database;
-  const { diceRoller } = container;
+  const { prisma, diceRoller } = container;
 
-  const savedGuild = await manager.findOneBy(Guild, { id: guildId });
-  const savedUser = await manager.findOneBy(User, { id: userId });
+  const savedRolls = await prisma.roll.findMany({
+    where: {
+      user: { id: userId },
+      guild: { id: guildId },
+    },
+  });
 
-  if (savedGuild && savedUser) {
-    const savedRolls = await manager.find(Roll, {
-      where: { guild: savedGuild, user: savedUser },
-    });
-    const rollNames = savedRolls.map((r) => r.name);
-    const regex = new RegExp(rollNames.join("|"), "g");
+  const rollNames = savedRolls.map((r) => r.name);
+  const regex = new RegExp(rollNames.join("|"), "g");
 
-    if (!Array.isArray(notation)) {
-      const processedNotation = processNotation(notation, regex, savedRolls);
-      return diceRoller.roll(processedNotation);
-    }
-    const processedNotations = notation.map((n) =>
-      processNotation(n, regex, savedRolls)
-    );
-    return diceRoller.roll(...processedNotations);
+  if (!Array.isArray(notation)) {
+    const processedNotation = processNotation(notation, regex, savedRolls);
+    return diceRoller.roll(processedNotation);
   }
 
-  const roll = Array.isArray(notation)
-    ? diceRoller.roll(...notation)
-    : diceRoller.roll(notation);
-  return roll;
+  const processedNotations = notation.map((n) =>
+    processNotation(n, regex, savedRolls)
+  );
+
+  return diceRoller.roll(...processedNotations);
 };

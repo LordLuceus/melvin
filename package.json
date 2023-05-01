@@ -37,7 +37,6 @@
     "ms": "^2.1.3",
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.14",
     "utf-8-validate": "^5.0.7",
     "zlib-sync": "^0.1.7"
   },
