@@ -147,8 +147,10 @@ export default class RollCommand extends Command {
       }
 
       if (
-        interaction.guild?.me &&
-        !gmChannel.permissionsFor(interaction.guild.me)?.has("SEND_MESSAGES")
+        interaction.guild?.members.me &&
+        !gmChannel
+          .permissionsFor(interaction.guild.members.me)
+          ?.has("SEND_MESSAGES")
       ) {
         return interaction.reply({
           content: `I do not have permission to send messages in ${gmChannel}. Please update my permissions and try again.`,
