@@ -75,22 +75,26 @@ export default class RollCommand extends Command {
             interaction.user.id,
             interaction.guild?.id
           );
+
           return this.composeReply(interaction, rolls, display, secret);
         } catch (err: any) {
           return this.handleError(err, interaction);
         }
       }
+
       try {
         const roll = await rollDice(
           notation,
           interaction.user.id,
           interaction.guild?.id
         );
+
         return this.composeReply(interaction, roll, display, secret);
       } catch (err: any) {
         return this.handleError(err, interaction);
       }
     }
+
     return null;
   }
 
@@ -137,18 +141,20 @@ export default class RollCommand extends Command {
     if (secret) {
       gmChannel = await this.getGmChannel(interaction);
       if (!gmChannel) {
-        return interaction.reply(
-          "The GM channel must be set to use the secret option."
-        );
+        return interaction.reply({
+          content: "The GM channel must be set to use the secret option.",
+          ephemeral: true,
+        });
       }
 
       if (
         interaction.guild?.me &&
         !gmChannel.permissionsFor(interaction.guild.me)?.has("SEND_MESSAGES")
       ) {
-        return interaction.reply(
-          `I do not have permission to send messages in ${gmChannel}. Please update my permissions and try again.`
-        );
+        return interaction.reply({
+          content: `I do not have permission to send messages in ${gmChannel}. Please update my permissions and try again.`,
+          ephemeral: true,
+        });
       }
     }
 
