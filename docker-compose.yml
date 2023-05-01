@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  melvin:
+    build: .
+    depends_on:
+      - db
+    restart: on-failure
+    container_name: melvin
+    env_file:
+      - docker-compose.env
+
+  db:
+    image: postgres:13
+    container_name: postgres
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      docker-compose.env
+
+volumes:
+  pgdata:
