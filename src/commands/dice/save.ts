@@ -1,14 +1,12 @@
 import { Parser } from "@dice-roller/rpg-dice-roller";
 import { isMessageInstance } from "@sapphire/discord.js-utilities";
 import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
-import type {
+import {
   CommandInteraction,
+  MessageActionRow,
+  MessageButton,
   MessageComponentInteraction,
 } from "discord.js";
-import { AddComponents } from "discord.js-components";
-import { Guild } from "../../entities/Guild";
-import { Roll } from "../../entities/Roll";
-import { User } from "../../entities/User";
 import { writeLog } from "../../util/log";
 
 export class SaveCommand extends Command {
@@ -52,6 +50,7 @@ export class SaveCommand extends Command {
       .getString("value")
       ?.toLowerCase()
       .trim();
+
     const { guild } = interaction;
 
     if (name && notation && guild) {
@@ -73,6 +72,7 @@ export class SaveCommand extends Command {
             ephemeral: true,
           });
         }
+
         const savedUser = await this.findUser(interaction.user.id);
 
         const saved = await this.save(
@@ -81,6 +81,7 @@ export class SaveCommand extends Command {
           interaction.user.id,
           guild.id
         );
+
         if (!saved) {
           const reply = await SaveCommand.composeReply(
             interaction,
@@ -102,6 +103,7 @@ export class SaveCommand extends Command {
               componentType: "BUTTON",
               time: 30000,
             });
+
             if (response.customId === "1") {
               await this.save(
                 name,
@@ -110,16 +112,19 @@ export class SaveCommand extends Command {
                 guild.id,
                 true
               );
+
               return SaveCommand.composeReply(interaction, name, notation, {
                 edit: true,
               });
             }
+
             return interaction.editReply({
               content: "Okay. The roll shortcut will not be overwritten.",
               components: [],
             });
           }
         }
+
         return SaveCommand.composeReply(interaction, name, notation, {
           firstTime: !savedUser,
         });
@@ -131,16 +136,17 @@ export class SaveCommand extends Command {
         });
       }
     }
+
     return null;
   }
 
-  private async findUser(id: string): Promise<User | null> {
-    const { manager } = this.container.database;
+  private async findUser(id: string) {
+    const { user } = this.container.prisma;
 
-    const savedUser = await manager.findOne(User, {
+    const savedUser = await user.findUnique({
       where: { id },
-      relations: { guilds: true },
     });
+
     return savedUser;
   }
 
@@ -151,79 +157,59 @@ export class SaveCommand extends Command {
     guildId: string,
     overwrite?: boolean
   ): Promise<boolean> {
-    const { manager } = this.container.database;
-
-    const savedGuild = await manager.findOne(Guild, {
-      where: { id: guildId },
-    });
-
-    const savedUser = await this.findUser(userId);
-
-    const roll = manager.create(Roll, { name, value: notation });
+    const { prisma } = this.container;
 
     if (overwrite) {
-      if (savedGuild && savedUser) {
-        const savedRoll = await manager.findOne(Roll, {
-          where: { name, user: savedUser, guild: savedGuild },
-        });
-        if (savedRoll) {
-          await manager.remove(savedRoll);
-          roll.guild = savedGuild;
-          roll.user = savedUser;
-          await manager.save(roll);
-          return true;
-        }
-      }
-    }
-
-    if (!savedGuild) {
-      if (!savedUser) {
-        // If there's no user or guild, we make everything from scratch.
-        const user = manager.create(User, {
-          id: userId,
-        });
-        const guild = manager.create(Guild, {
-          id: guildId,
-        });
-        roll.user = user;
-        roll.guild = guild;
-        user.guilds = [guild];
-        await manager.save([guild, user, roll]);
-        return true;
-      }
-      // We have a user, but no guild.
-      const guild = manager.create(Guild, {
-        id: guildId,
+      const savedRoll = await prisma.roll.findFirstOrThrow({
+        where: { name, guildId, userId },
       });
-      roll.user = savedUser;
-      roll.guild = guild;
-      savedUser.guilds.push(guild);
-      await manager.save([guild, savedUser, roll]);
-      return true;
-    }
-    // We have a guild.
 
-    if (!savedUser) {
-      const user = manager.create(User, {
-        id: userId,
+      await prisma.roll.update({
+        where: { id: savedRoll.id },
+        data: { value: notation },
       });
-      roll.user = user;
-      roll.guild = savedGuild;
-      user.guilds = [savedGuild];
-      await manager.save([savedGuild, user, roll]);
+
       return true;
     }
 
-    const savedRoll = await manager.findOne(Roll, {
-      where: { name, guild: savedGuild, user: savedUser },
+    const savedRoll = await prisma.roll.findFirst({
+      where: { name, guildId, userId },
     });
+
     if (savedRoll) {
       return false;
     }
 
-    roll.user = savedUser;
-    roll.guild = savedGuild;
-    await manager.save(roll);
+    await prisma.user.upsert({
+      where: { id: userId },
+      create: {
+        id: userId,
+      },
+      update: {},
+    });
+
+    await prisma.guild.upsert({
+      where: { id: guildId },
+      create: {
+        id: guildId,
+        users: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+      update: {},
+    });
+
+    await prisma.roll.create({
+      data: {
+        name,
+        value: notation,
+        user: { connect: { id: userId } },
+        guild: { connect: { id: guildId } },
+      },
+    });
+
     return true;
   }
 
@@ -238,27 +224,34 @@ export class SaveCommand extends Command {
     }
   ) {
     if (options?.confirm) {
+      const row = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setCustomId("1")
+          .setLabel("Yes")
+          .setStyle("SUCCESS"),
+        new MessageButton()
+          .setCustomId("2")
+          .setLabel("No")
+          .setStyle("SECONDARY")
+      );
+
       const reply = await interaction.reply({
         content: `You have already saved a roll shortcut with the name \`${name}\`. Would you like to overwrite it?`,
         ephemeral: true,
         fetchReply: true,
-        components: AddComponents({
-          type: "BUTTON",
-          options: [
-            { customId: "1", label: "Yes", style: "SUCCESS" },
-            { customId: "2", label: "No", style: "DANGER" },
-          ],
-        }),
+        components: [row],
       });
 
       return reply;
     }
+
     if (options?.edit) {
       return interaction.editReply({
         content: `Roll \`${notation}\` saved as \`${name}\`.`,
         components: [],
       });
     }
+
     return interaction.reply({
       content: `Roll \`${notation}\` saved as \`${name}\`. ${
         options?.firstTime
