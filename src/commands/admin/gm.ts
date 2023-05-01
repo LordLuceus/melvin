@@ -59,8 +59,8 @@ export class GMCommand extends Command {
     if (guild) {
       try {
         if (
-          guild.me &&
-          !channel.permissionsFor(guild.me)?.has("SEND_MESSAGES")
+          guild.members.me &&
+          !channel.permissionsFor(guild.members.me)?.has("SEND_MESSAGES")
         ) {
           return await interaction.reply({
             content: `I don't have permission to send messages in ${channel}. Please give me permission to send messages in that channel and try again, or choose a different channel.`,
