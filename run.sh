@@ -1,4 +1,6 @@
 #!/bin/sh
 
 npm run migrate-deploy
-npm run start
+npm run prisma-generate
+npm run build
+NODE_ENV=production exec node .

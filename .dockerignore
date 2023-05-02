@@ -4,3 +4,4 @@ dist/
 *.log
 *.md
 .env
+.env.*
