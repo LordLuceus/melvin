@@ -1,10 +1,16 @@
 import { Parser } from "@dice-roller/rpg-dice-roller";
 import { isMessageInstance } from "@sapphire/discord.js-utilities";
-import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
 import {
-  CommandInteraction,
-  MessageActionRow,
-  MessageButton,
+  ChatInputCommand,
+  Command,
+  LogLevel,
+  RegisterBehavior,
+} from "@sapphire/framework";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ComponentType,
   MessageComponentInteraction,
 } from "discord.js";
 import { writeLog } from "../../util/log";
@@ -20,7 +26,9 @@ export class SaveCommand extends Command {
     });
   }
 
-  public override registerApplicationCommands(registry: Command.Registry) {
+  public override registerApplicationCommands(
+    registry: ChatInputCommand.Registry
+  ) {
     registry.registerChatInputCommand(
       (builder) =>
         builder
@@ -44,16 +52,19 @@ export class SaveCommand extends Command {
     );
   }
 
-  public async chatInputRun(interaction: CommandInteraction) {
-    const name = interaction.options.getString("name")?.toLowerCase().trim();
+  public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+    const name = interaction.options
+      .getString("name", true)
+      .toLowerCase()
+      .trim();
     const notation = interaction.options
-      .getString("value")
-      ?.toLowerCase()
+      .getString("value", true)
+      .toLowerCase()
       .trim();
 
     const { guild } = interaction;
 
-    if (name && notation && guild) {
+    if (guild) {
       try {
         try {
           Parser.parse(notation);
@@ -100,7 +111,7 @@ export class SaveCommand extends Command {
           if (isMessageInstance(reply)) {
             const response = await reply.awaitMessageComponent({
               filter,
-              componentType: "BUTTON",
+              componentType: ComponentType.Button,
               time: 30000,
             });
 
@@ -214,7 +225,7 @@ export class SaveCommand extends Command {
   }
 
   private static async composeReply(
-    interaction: CommandInteraction,
+    interaction: Command.ChatInputCommandInteraction,
     name: string,
     notation: string,
     options?: {
@@ -224,15 +235,15 @@ export class SaveCommand extends Command {
     }
   ) {
     if (options?.confirm) {
-      const row = new MessageActionRow().addComponents(
-        new MessageButton()
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
           .setCustomId("1")
           .setLabel("Yes")
-          .setStyle("SUCCESS"),
-        new MessageButton()
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
           .setCustomId("2")
           .setLabel("No")
-          .setStyle("SECONDARY")
+          .setStyle(ButtonStyle.Secondary)
       );
 
       const reply = await interaction.reply({

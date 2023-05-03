@@ -1,5 +1,8 @@
-import { Command } from "@sapphire/framework";
-import type { CommandInteraction } from "discord.js";
+import {
+  ChatInputCommand,
+  Command,
+  RegisterBehavior,
+} from "@sapphire/framework";
 import ms from "ms";
 
 export class StatusCommand extends Command {
@@ -8,13 +11,19 @@ export class StatusCommand extends Command {
       name: "status",
       description: "Check Melvin's status",
       preconditions: ["OwnerOnly"],
-      chatInputCommand: {
-        register: true,
-      },
     });
   }
 
-  public chatInputRun(interaction: CommandInteraction) {
+  public override async registerApplicationCommands(
+    registry: ChatInputCommand.Registry
+  ) {
+    registry.registerChatInputCommand(
+      (builder) => builder.setName(this.name).setDescription(this.description),
+      { behaviorWhenNotIdentical: RegisterBehavior.Overwrite }
+    );
+  }
+
+  public chatInputRun(interaction: Command.ChatInputCommandInteraction) {
     return interaction.reply({
       content: `Serving ${
         this.container.client.guilds.cache.size

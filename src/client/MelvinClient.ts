@@ -1,11 +1,12 @@
 import { DiceRoller } from "@dice-roller/rpg-dice-roller";
 import { PrismaClient } from "@prisma/client";
 import { container, LogLevel, SapphireClient } from "@sapphire/framework";
+import { GatewayIntentBits } from "discord.js";
 
 export class MelvinClient extends SapphireClient {
   constructor() {
     super({
-      intents: ["GUILDS"],
+      intents: [GatewayIntentBits.Guilds],
       logger: {
         level:
           process.env.NODE_ENV === "development"
