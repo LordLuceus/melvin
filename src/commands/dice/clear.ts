@@ -1,5 +1,9 @@
-import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
-import { CommandInteraction } from "discord.js";
+import {
+  ChatInputCommand,
+  Command,
+  LogLevel,
+  RegisterBehavior,
+} from "@sapphire/framework";
 import { writeLog } from "../../util/log";
 
 export class ClearCommand extends Command {
@@ -13,7 +17,9 @@ export class ClearCommand extends Command {
     });
   }
 
-  public override registerApplicationCommands(registry: Command.Registry) {
+  public override registerApplicationCommands(
+    registry: ChatInputCommand.Registry
+  ) {
     registry.registerChatInputCommand(
       (builder) =>
         builder
@@ -28,7 +34,7 @@ export class ClearCommand extends Command {
     );
   }
 
-  public async chatInputRun(interaction: CommandInteraction) {
+  public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
     const { prisma } = this.container;
     const roll = interaction.options.getString("roll")?.toLowerCase().trim();
 
