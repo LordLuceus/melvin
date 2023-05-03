@@ -1,6 +1,9 @@
-import { Command, RegisterBehavior } from "@sapphire/framework";
-import { ChannelType } from "discord-api-types/v10";
-import { CommandInteraction, TextChannel } from "discord.js";
+import {
+  ChatInputCommand,
+  Command,
+  RegisterBehavior,
+} from "@sapphire/framework";
+import { ChannelType, PermissionFlagsBits } from "discord.js";
 
 export class GMCommand extends Command {
   constructor(context: Command.Context) {
@@ -10,11 +13,13 @@ export class GMCommand extends Command {
       preconditions: ["GuildOnly"],
       cooldownDelay: 5000,
       cooldownLimit: 1,
-      requiredUserPermissions: ["MANAGE_GUILD"],
+      requiredUserPermissions: [PermissionFlagsBits.ManageGuild],
     });
   }
 
-  public override registerApplicationCommands(registry: Command.Registry) {
+  public override registerApplicationCommands(
+    registry: ChatInputCommand.Registry
+  ) {
     registry.registerChatInputCommand(
       (builder) =>
         builder
@@ -33,9 +38,11 @@ export class GMCommand extends Command {
     );
   }
 
-  public async chatInputRun(interaction: CommandInteraction) {
+  public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
     const { prisma } = this.container;
-    const channel = interaction.options.getChannel("channel") as TextChannel;
+    const channel = interaction.options.getChannel("channel", false, [
+      ChannelType.GuildText,
+    ]);
     const { guild } = interaction;
 
     const savedGuild = await prisma.guild.findUnique({
@@ -60,7 +67,9 @@ export class GMCommand extends Command {
       try {
         if (
           guild.members.me &&
-          !channel.permissionsFor(guild.members.me)?.has("SEND_MESSAGES")
+          !channel
+            .permissionsFor(guild.members.me)
+            ?.has(PermissionFlagsBits.SendMessages)
         ) {
           return await interaction.reply({
             content: `I don't have permission to send messages in ${channel}. Please give me permission to send messages in that channel and try again, or choose a different channel.`,

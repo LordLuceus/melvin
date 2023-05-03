@@ -1,5 +1,9 @@
-import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
-import type { CommandInteraction } from "discord.js";
+import {
+  ChatInputCommand,
+  Command,
+  LogLevel,
+  RegisterBehavior,
+} from "@sapphire/framework";
 import { chunkString } from "../../util/chunkString";
 import { writeLog } from "../../util/log";
 
@@ -14,7 +18,9 @@ export class ListCommand extends Command {
     });
   }
 
-  public override registerApplicationCommands(registry: Command.Registry) {
+  public override registerApplicationCommands(
+    registry: ChatInputCommand.Registry
+  ) {
     registry.registerChatInputCommand(
       (builder) => builder.setName(this.name).setDescription(this.description),
       {
@@ -23,7 +29,7 @@ export class ListCommand extends Command {
     );
   }
 
-  public async chatInputRun(interaction: CommandInteraction) {
+  public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
     const { prisma } = this.container;
 
     try {
@@ -82,7 +88,10 @@ export class ListCommand extends Command {
       }
     } catch (err: any) {
       writeLog(LogLevel.Error, this.name, err.message);
-      return interaction.reply(`What the frig? \`${err.message}\``);
+      return interaction.reply({
+        content: `What the frig? \`${err.message}\``,
+        ephemeral: true,
+      });
     }
 
     return null;

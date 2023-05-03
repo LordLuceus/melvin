@@ -1,8 +1,9 @@
-import { Precondition } from "@sapphire/framework";
-import type { CommandInteraction } from "discord.js";
+import { Command, Precondition } from "@sapphire/framework";
 
 export class OwnerOnlyPrecondition extends Precondition {
-  public override async chatInputRun(interaction: CommandInteraction) {
+  public override async chatInputRun(
+    interaction: Command.ChatInputCommandInteraction
+  ) {
     return this.checkOwner(interaction.user.id);
   }
 

@@ -1,6 +1,11 @@
 import type { DiceRoll } from "@dice-roller/rpg-dice-roller";
-import { Command, LogLevel, RegisterBehavior } from "@sapphire/framework";
-import type { CommandInteraction, TextChannel } from "discord.js";
+import {
+  ChatInputCommand,
+  Command,
+  LogLevel,
+  RegisterBehavior,
+} from "@sapphire/framework";
+import { ChannelType, PermissionFlagsBits, TextChannel } from "discord.js";
 import { chunkString } from "../../util/chunkString";
 import { writeLog } from "../../util/log";
 import { rollDice } from "../../util/rollDice";
@@ -15,7 +20,9 @@ export default class RollCommand extends Command {
     });
   }
 
-  public override registerApplicationCommands(registry: Command.Registry) {
+  public override registerApplicationCommands(
+    registry: ChatInputCommand.Registry
+  ) {
     registry.registerChatInputCommand(
       (builder) =>
         builder
@@ -57,47 +64,46 @@ export default class RollCommand extends Command {
     );
   }
 
-  public async chatInputRun(interaction: CommandInteraction) {
+  public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
     const notation = interaction.options
-      .getString("dice")
-      ?.toLowerCase()
+      .getString("dice", true)
+      .toLowerCase()
       .trim();
     const repetitions = interaction.options.getInteger("repetitions");
     const display = interaction.options.getString("output") || "output";
     const secret = interaction.options.getBoolean("secret");
 
-    if (notation) {
-      if (repetitions) {
-        try {
-          const rolls = await rollDice(
-            Array(repetitions).fill(notation),
-            interaction.user.id,
-            interaction.guild?.id
-          );
-
-          return this.composeReply(interaction, rolls, display, secret);
-        } catch (err: any) {
-          return this.handleError(err, interaction);
-        }
-      }
-
+    if (repetitions) {
       try {
-        const roll = await rollDice(
-          notation,
+        const rolls = await rollDice(
+          Array(repetitions).fill(notation),
           interaction.user.id,
           interaction.guild?.id
         );
 
-        return this.composeReply(interaction, roll, display, secret);
+        return this.composeReply(interaction, rolls, display, secret);
       } catch (err: any) {
         return this.handleError(err, interaction);
       }
     }
 
-    return null;
+    try {
+      const roll = await rollDice(
+        notation,
+        interaction.user.id,
+        interaction.guild?.id
+      );
+
+      return this.composeReply(interaction, roll, display, secret);
+    } catch (err: any) {
+      return this.handleError(err, interaction);
+    }
   }
 
-  private handleError(err: any, interaction: CommandInteraction) {
+  private handleError(
+    err: any,
+    interaction: Command.ChatInputCommandInteraction
+  ) {
     writeLog(LogLevel.Error, this.name, err.message);
     return interaction.reply(
       `${interaction.user.toString()}: What the frig? Foolish Steve! \`${
@@ -107,7 +113,7 @@ export default class RollCommand extends Command {
   }
 
   private async composeReply(
-    interaction: CommandInteraction,
+    interaction: Command.ChatInputCommandInteraction,
     roll: DiceRoll | DiceRoll[],
     output: string,
     secret: boolean | null = false
@@ -150,7 +156,7 @@ export default class RollCommand extends Command {
         interaction.guild?.members.me &&
         !gmChannel
           .permissionsFor(interaction.guild.members.me)
-          ?.has("SEND_MESSAGES")
+          ?.has(PermissionFlagsBits.SendMessages)
       ) {
         return interaction.reply({
           content: `I do not have permission to send messages in ${gmChannel}. Please update my permissions and try again.`,
@@ -206,7 +212,7 @@ export default class RollCommand extends Command {
   }
 
   private async getGmChannel(
-    interaction: CommandInteraction
+    interaction: Command.ChatInputCommandInteraction
   ): Promise<TextChannel | null> {
     const { prisma } = this.container;
 
@@ -222,7 +228,7 @@ export default class RollCommand extends Command {
     const gmChannel = guild.channels.cache.get(savedGuild.gmChannel);
     if (!gmChannel) return null;
 
-    if (!gmChannel.isText()) return null;
-    return gmChannel as TextChannel;
+    if (gmChannel.type !== ChannelType.GuildText) return null;
+    return gmChannel;
   }
 }
