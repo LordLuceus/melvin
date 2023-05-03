@@ -4,8 +4,11 @@
   "description": "An advanced RPG dice and initiative trackerr bot for Discord",
   "main": "dist/index.js",
   "scripts": {
-    "start": "tsc && node dist/index.js",
-    "dev": "NODE_ENV=development nodemon --watch src -e ts --exec \"npm run start\""
+    "start": "node dist/index.js",
+    "dev": "NODE_ENV=development nodemon --watch src -e ts --exec \"npm run build && npm run start\"",
+    "build": "tsc",
+    "migrate-deploy": "prisma migrate deploy",
+    "prisma-generate": "prisma generate"
   },
   "keywords": [
     "dice",
