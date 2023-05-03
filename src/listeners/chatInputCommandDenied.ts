@@ -14,6 +14,6 @@ export class ChatInputCommandDeniedListener extends Listener {
         error.message
       }`
     );
-    return interaction.reply(error.message);
+    return interaction.reply({ content: error.message, ephemeral: true });
   }
 }
