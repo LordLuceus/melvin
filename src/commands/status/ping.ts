@@ -1,6 +1,9 @@
 import { isMessageInstance } from "@sapphire/discord.js-utilities";
-import { Command } from "@sapphire/framework";
-import type { CommandInteraction } from "discord.js";
+import {
+  ChatInputCommand,
+  Command,
+  RegisterBehavior,
+} from "@sapphire/framework";
 
 export class PingCommand extends Command {
   constructor(context: Command.Context) {
@@ -9,14 +12,22 @@ export class PingCommand extends Command {
       description: "Ping Melvin to see if he's alive.",
       cooldownDelay: 5000,
       cooldownLimit: 1,
-      chatInputCommand: {
-        register: true,
-      },
       preconditions: ["OwnerOnly"],
     });
   }
 
-  public async chatInputRun(interaction: CommandInteraction) {
+  public override async registerApplicationCommands(
+    registry: ChatInputCommand.Registry
+  ) {
+    registry.registerChatInputCommand(
+      (builder) => builder.setName(this.name).setDescription(this.description),
+      {
+        behaviorWhenNotIdentical: RegisterBehavior.Overwrite,
+      }
+    );
+  }
+
+  public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
     const msg = await interaction.reply({
       content: "Pinging...",
       ephemeral: true,
