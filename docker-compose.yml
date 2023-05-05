@@ -10,7 +10,7 @@ services:
     restart: on-failure
     container_name: melvin
     env_file:
-      - docker-compose.env
+      - .env
 
   db:
     image: postgres:13
@@ -21,7 +21,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
-      - docker-compose.env
+      - .env
 
 volumes:
   pgdata:
