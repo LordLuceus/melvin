@@ -26,7 +26,7 @@
     "url": "https://github.com/LordLuceus/melvin.git"
   },
   "dependencies": {
-    "@dice-roller/rpg-dice-roller": "^5.1.0",
+    "@dice-roller/rpg-dice-roller": "^5.2.1",
     "@prisma/client": "^4.13.0",
     "@sapphire/discord.js-utilities": "^6.0.7",
     "@sapphire/framework": "^4.4.3",

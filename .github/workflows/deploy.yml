@@ -17,5 +17,5 @@ jobs:
         run: |
           echo "$DEPLOY_KEY" > deploy_key
           chmod 600 deploy_key
-          ssh -i deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$SERVER_IP "/home/luceus/melvin/deploy.sh"
+          ssh -i deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null luceus@$SERVER_IP "/home/luceus/melvin/deploy.sh"
           rm -f deploy_key
