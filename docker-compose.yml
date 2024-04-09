@@ -12,7 +12,7 @@ services:
 
   db:
     image: postgres:13
-    container_name: postgres
+    container_name: melvin_db
     hostname: postgres
     ports:
       - 5432:5432
