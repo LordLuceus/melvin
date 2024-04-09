@@ -6,8 +6,9 @@ import {
 } from "@sapphire/framework";
 
 export class PingCommand extends Command {
-  constructor(context: Command.Context) {
+  constructor(context: Command.LoaderContext, options: Command.Options) {
     super(context, {
+      ...options,
       name: "ping",
       description: "Ping Melvin to see if he's alive.",
       cooldownDelay: 5000,
@@ -16,7 +17,7 @@ export class PingCommand extends Command {
     });
   }
 
-  public override async registerApplicationCommands(
+  public override registerApplicationCommands(
     registry: ChatInputCommand.Registry
   ) {
     registry.registerChatInputCommand(

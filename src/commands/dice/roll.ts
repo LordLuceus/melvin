@@ -11,8 +11,9 @@ import { writeLog } from "../../util/log";
 import { rollDice } from "../../util/rollDice";
 
 export default class RollCommand extends Command {
-  constructor(context: Command.Context) {
+  constructor(context: Command.LoaderContext, options: Command.Options) {
     super(context, {
+      ...options,
       name: "roll",
       description: "Roll dice",
       cooldownLimit: 1,

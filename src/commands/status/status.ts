@@ -6,15 +6,16 @@ import {
 import ms from "ms";
 
 export class StatusCommand extends Command {
-  constructor(context: Command.Context) {
+  constructor(context: Command.LoaderContext, options: Command.Options) {
     super(context, {
+      ...options,
       name: "status",
       description: "Check Melvin's status",
       preconditions: ["OwnerOnly"],
     });
   }
 
-  public override async registerApplicationCommands(
+  public override registerApplicationCommands(
     registry: ChatInputCommand.Registry
   ) {
     registry.registerChatInputCommand(

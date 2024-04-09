@@ -1,19 +1,21 @@
 import {
   ChatInputCommand,
   Command,
+  CommandOptionsRunTypeEnum,
   RegisterBehavior,
 } from "@sapphire/framework";
 import { ChannelType, PermissionFlagsBits } from "discord.js";
 
 export class GMCommand extends Command {
-  constructor(context: Command.Context) {
+  constructor(context: Command.LoaderContext, options: Command.Options) {
     super(context, {
+      ...options,
       name: "gm",
       description: "Set the game master channel for the server",
-      preconditions: ["GuildOnly"],
       cooldownDelay: 5000,
       cooldownLimit: 1,
       requiredUserPermissions: [PermissionFlagsBits.ManageGuild],
+      runIn: CommandOptionsRunTypeEnum.GuildText,
     });
   }
 
@@ -85,14 +87,14 @@ export class GMCommand extends Command {
             },
           });
 
-          return await interaction.reply({
+          return interaction.reply({
             content: `The game master channel has been set to ${channel}`,
             ephemeral: true,
           });
         }
 
         if (savedGuild.gmChannel === channel.id) {
-          return await interaction.reply({
+          return interaction.reply({
             content: `The game master channel is already set to ${channel}`,
             ephemeral: true,
           });
@@ -105,7 +107,7 @@ export class GMCommand extends Command {
           },
         });
 
-        return await interaction.reply({
+        return interaction.reply({
           content: `The game master channel has been set to ${channel}`,
           ephemeral: true,
         });
