@@ -1,6 +1,6 @@
 import { Listener, LogLevel } from "@sapphire/framework";
 import { ActivityType, Guild } from "discord.js";
-import { writeLog } from "../util/log";
+import { writeLog } from "../util";
 
 export class GuildCreateListener extends Listener {
   public run(guild: Guild) {

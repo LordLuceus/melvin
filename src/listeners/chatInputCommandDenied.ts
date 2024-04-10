@@ -3,7 +3,7 @@ import type {
   UserError,
 } from "@sapphire/framework";
 import { Listener, LogLevel } from "@sapphire/framework";
-import { writeLog } from "../util/log";
+import { writeLog } from "../util";
 
 export class ChatInputCommandDeniedListener extends Listener {
   public run(error: UserError, { interaction }: ChatInputCommandDeniedPayload) {

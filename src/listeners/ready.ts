@@ -1,10 +1,9 @@
 import { Listener, LogLevel } from "@sapphire/framework";
 import { ActivityType } from "discord.js";
-import { writeLog } from "../util/log";
-import { setEngine } from "../util/setEngine";
+import { setEngine, writeLog } from "../util";
 
 export class ReadyListener extends Listener {
-  public constructor(context: Listener.Context) {
+  public constructor(context: Listener.LoaderContext) {
     super(context, {
       once: true,
     });

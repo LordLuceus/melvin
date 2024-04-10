@@ -1,6 +1,6 @@
 import { Listener, LogLevel } from "@sapphire/framework";
 import { DMChannel, GuildChannel } from "discord.js";
-import { writeLog } from "../util/log";
+import { writeLog } from "../util";
 
 export class ChannelDeleteListener extends Listener {
   public async run(channel: GuildChannel | DMChannel) {

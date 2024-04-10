@@ -13,8 +13,7 @@ import {
   ComponentType,
   MessageComponentInteraction,
 } from "discord.js";
-import { chunkString } from "../../util/chunkString";
-import { writeLog } from "../../util/log";
+import { chunkString, writeLog } from "../../util";
 
 export class RollShortcutCommand extends Subcommand {
   public constructor(
