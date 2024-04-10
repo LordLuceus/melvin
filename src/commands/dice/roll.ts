@@ -1,16 +1,26 @@
 import type { DiceRoll } from "@dice-roller/rpg-dice-roller";
+import type { RollResults } from "@dice-roller/rpg-dice-roller/types/results";
+import {
+  AudioPlayerStatus,
+  createAudioPlayer,
+  createAudioResource,
+  joinVoiceChannel,
+} from "@discordjs/voice";
 import {
   ChatInputCommand,
   Command,
   LogLevel,
   RegisterBehavior,
 } from "@sapphire/framework";
-import { ChannelType, PermissionFlagsBits, TextChannel } from "discord.js";
-import { chunkString } from "../../util/chunkString";
-import { writeLog } from "../../util/log";
-import { rollDice } from "../../util/rollDice";
+import {
+  ChannelType,
+  GuildMember,
+  PermissionFlagsBits,
+  TextChannel,
+} from "discord.js";
+import { chunkString, hasD20, rollDice, writeLog } from "../../util";
 
-export default class RollCommand extends Command {
+export class RollCommand extends Command {
   constructor(context: Command.LoaderContext, options: Command.Options) {
     super(context, {
       ...options,
@@ -89,15 +99,55 @@ export default class RollCommand extends Command {
     }
 
     try {
-      const roll = await rollDice(
+      const roll = (await rollDice(
         notation,
         interaction.user.id,
         interaction.guild?.id
-      );
+      )) as DiceRoll;
+
+      RollCommand.laugh(roll, interaction, display, secret);
 
       return this.composeReply(interaction, roll, display, secret);
     } catch (err: any) {
       return this.handleError(err, interaction);
+    }
+  }
+
+  private static laugh(
+    roll: DiceRoll,
+    interaction: Command.ChatInputCommandInteraction,
+    output: string,
+    secret: boolean | null
+  ) {
+    if (output !== "output" || secret) return;
+
+    if (hasD20(roll.notation)) {
+      const result = (roll.rolls[0] as RollResults).value;
+
+      if (result === 1) {
+        const { member } = interaction;
+
+        if (member instanceof GuildMember && member.voice.channel) {
+          const player = createAudioPlayer();
+          const audio = createAudioResource("./assets/Melvin_Laugh-001.ogg");
+          player.play(audio);
+          const connection = joinVoiceChannel({
+            channelId: member.voice.channel?.id,
+            guildId: member.guild.id,
+            adapterCreator: member.guild.voiceAdapterCreator,
+          });
+          connection.subscribe(player);
+
+          player.on("stateChange", (oldState, newState) => {
+            if (
+              oldState.status === AudioPlayerStatus.Playing &&
+              newState.status === AudioPlayerStatus.Idle
+            ) {
+              connection.destroy();
+            }
+          });
+        }
+      }
     }
   }
 

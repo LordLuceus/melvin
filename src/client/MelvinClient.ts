@@ -6,7 +6,7 @@ import { GatewayIntentBits } from "discord.js";
 export class MelvinClient extends SapphireClient {
   constructor() {
     super({
-      intents: [GatewayIntentBits.Guilds],
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
       logger: {
         level:
           process.env.NODE_ENV === "development"
