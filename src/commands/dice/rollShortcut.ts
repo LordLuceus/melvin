@@ -76,7 +76,10 @@ export class RollShortcutCommand extends Subcommand {
               .setName("remove")
               .setDescription("Remove roll shortcuts")
               .addStringOption((option) =>
-                option.setName("roll").setDescription("The roll to clear")
+                option
+                  .setName("roll")
+                  .setDescription("The roll to clear")
+                  .setAutocomplete(true)
               )
           ),
       { behaviorWhenNotIdentical: RegisterBehavior.Overwrite }
