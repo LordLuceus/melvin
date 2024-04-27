@@ -1,10 +1,10 @@
-FROM node:18-alpine as builder
+FROM node:20-alpine as builder
 
 # Set the working directory
 WORKDIR /app
 
 # Install dependencies
-RUN apk add --no-cache python3 make g++
+RUN apk add --no-cache python3 make g++ libtool autoconf automake
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
@@ -19,7 +19,7 @@ COPY . .
 # Build the application
 RUN npm run build
 
-FROM node:18-alpine
+FROM node:20-alpine
 
 ENV NODE_ENV=production
 
