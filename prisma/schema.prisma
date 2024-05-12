@@ -8,10 +8,11 @@ datasource db {
 }
 
 model guild {
-  id        String  @id(map: "PK_cfbbd0a2805cab7053b516068a3") @db.VarChar(20)
-  gmChannel String? @db.VarChar(20)
-  rolls     roll[]
-  users     user[]
+  id         String      @id(map: "PK_cfbbd0a2805cab7053b516068a3") @db.VarChar(20)
+  gmChannel  String?     @db.VarChar(20)
+  rolls      roll[]
+  users      user[]
+  rollGroups RollGroup[]
 }
 
 model roll {
@@ -33,9 +34,11 @@ model user {
 }
 
 model RollGroup {
-  id     Int    @id @default(autoincrement())
-  name   String @db.VarChar
-  userId String @db.VarChar(20)
-  rolls  roll[]
-  user   user   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id      Int    @id @default(autoincrement())
+  name    String @db.VarChar
+  userId  String @db.VarChar(20)
+  guildId String @db.VarChar(20)
+  rolls   roll[]
+  user    user   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  guild   guild  @relation(fields: [guildId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }

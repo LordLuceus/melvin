@@ -4,7 +4,7 @@ import {
 } from "@sapphire/framework";
 import type { AutocompleteInteraction } from "discord.js";
 
-export class RollAutocompleteHandler extends InteractionHandler {
+export class GroupAutocompleteHandler extends InteractionHandler {
   public constructor(
     context: InteractionHandler.LoaderContext,
     options: InteractionHandler.Options
@@ -23,22 +23,22 @@ export class RollAutocompleteHandler extends InteractionHandler {
   }
 
   public override async parse(interaction: AutocompleteInteraction) {
-    if (
-      interaction.commandName !== "shortcut" &&
-      interaction.commandName !== "group"
-    )
+    if (!interaction.guild) {
       return this.none();
+    }
+
+    if (interaction.commandName !== "group") return this.none();
 
     const focusedOption = interaction.options.getFocused(true);
 
     switch (focusedOption.name) {
-      case "roll": {
-        const { roll } = this.container.prisma;
+      case "group": {
+        const { rollGroup } = this.container.prisma;
 
-        const savedRolls = await roll.findMany({
+        const savedGroups = await rollGroup.findMany({
           where: {
             user: { id: interaction.user.id },
-            guild: { id: interaction.guildId as string },
+            guild: { id: interaction.guild.id },
             name: {
               contains: focusedOption.value,
               mode: "insensitive",
@@ -48,7 +48,7 @@ export class RollAutocompleteHandler extends InteractionHandler {
         });
 
         return this.some(
-          savedRolls.map((r) => ({ name: r.name, value: r.name }))
+          savedGroups.map((r) => ({ name: r.name, value: r.name }))
         );
       }
       default: {
