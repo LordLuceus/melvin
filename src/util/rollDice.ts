@@ -43,6 +43,30 @@ export const rollDice = async (
 ): Promise<RollResult> => {
   const { prisma, diceRoller } = container;
 
+  let input: string;
+  if (Array.isArray(notation)) {
+    [input] = notation;
+  } else {
+    input = notation;
+  }
+
+  const group = await prisma.rollGroup.findFirst({
+    where: { name: input, guild: { id: guildId }, user: { id: userId } },
+    include: {
+      rolls: true,
+    },
+  });
+
+  if (group) {
+    const results = diceRoller.roll(
+      ...group.rolls.map((r) => r.value)
+    ) as DiceRoll[];
+    return {
+      roll: results.map((r, i) => new ExtendedDiceRoll(r, group.rolls[i].name)),
+      hasShortcut: true,
+    };
+  }
+
   const savedRolls = await prisma.roll.findMany({
     where: {
       user: { id: userId },
