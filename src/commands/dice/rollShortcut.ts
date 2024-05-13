@@ -97,7 +97,8 @@ export class RollShortcutCommand extends Subcommand {
 
       if (!savedUser) {
         return interaction.reply({
-          content: "You have no saved rolls. Try using the `/save` command.",
+          content:
+            "You have no saved rolls. Try using the `/shortcut add` command.",
           ephemeral: true,
         });
       }

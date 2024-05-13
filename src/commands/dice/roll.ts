@@ -27,7 +27,7 @@ import {
 } from "../../util";
 
 export class RollCommand extends Command {
-  constructor(context: Command.LoaderContext, options: Command.Options) {
+  public constructor(context: Command.LoaderContext, options: Command.Options) {
     super(context, {
       ...options,
       name: "roll",
