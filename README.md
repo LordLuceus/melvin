@@ -2,8 +2,6 @@
 
 **An advanced RPG dice bot for Discord**
 
-> Note: Melvin has been rewritten to support slash commands. All current functionality, and some that is brand new, remains available in the form of slash commands. If you're currently using Melvin in your server, the transition may have caused Melvin to stop working for you altogether. If this is the case, please reinvite Melvin using the invite link below or at the top of the top.gg page. Thank you for your understanding.
-
 ## [Invite Melvin to your server](https://discord.com/api/oauth2/authorize?client_id=813806889657434173&permissions=0&scope=bot%20applications.commands)
 
 ### Usage
@@ -51,13 +49,15 @@ The roll command has several options that you can make use of. The first of thes
 
 Note that the repeat option supports up to a maximum of ten repetitions.
 
-The output option allows you to output information about the dice you have specified. It can output the minimum, maximum, or the average roll  that is possible with those dice.
+The output option allows you to output information about the dice you have specified. It can output the minimum, maximum, or the average roll that is possible with those dice.
+
+With the secret option, you can make the result of the roll only visible to the game master, useful for Pathfinder 2e secret rolls or other similar situations. The GM channel must be set to use the secret option. You can set the GM channel using the `/gm` command. You may only use the GM command if you have the `Manage Server` permission.
 
 ### Roll Shortcuts
 
-You can also save rolls that you use often to allow you to reroll them quickly. These roll shortcuts are tied both to you and the server. This means that you can have the same shortcut on multiple servers and have them all be different rolls.
+You can also save rolls that you use often to allow you to reroll them quickly. These roll shortcuts are tied both to you and the server. This means that you can have the same shortcut on multiple servers and have them all be different rolls. The `shortcut` command is used to interact with roll shortcuts.
 
-To do this, type `/save`, press enter, enter the name, e.g. fireball, press enter, type in the roll, e.g. 6d6, and hit enter.
+To do this, type `/shortcut add`, press enter, enter the name, e.g. fireball, press enter, type in the roll, e.g. 6d6, and hit enter.
 
 To roll it, simply type `/roll fireball`.
 
@@ -70,7 +70,25 @@ The power of roll shortcuts is that you can include more than one in a single ro
 
 So, when your attack modifier changes, you can simply update the `atk` shortcut and use it like before.
 
-The `list` and `clear` commands allow you to interact with your roll shortcuts. The `list` command lists all saved rolls and the `clear` command clears the specified shortcut, or all of them if not specified.
+The `shortcut list` and `shortcut remove` commands allow you to interact with your roll shortcuts. The `list` command lists all saved rolls and the `remove` command clears the specified shortcut, or all of them if not specified.
+
+#### Roll Groups
+
+What if you have a group of rolls that you often want to roll together? Enter the `group` command. This command builds on roll shortcuts by allowing you to group multiple rolls together. The `group` command is used to interact with roll groups.
+
+To create a new group, type `/group create`, press enter, enter the name, e.g. `perception checks`, and hit enter.
+
+To add a roll to the group, type `/group add`, press enter, enter the name of the group, e.g. `perception checks`, press enter, and type in the shortcut, e.g. `luceus-perception`. You can add as many rolls as you like to a group. If the group does not exist, it will be created, but the shortcut must already exist.
+
+To remove a roll from a group, type `/group remove`, press enter, enter the name of the group, e.g. `perception checks`, press enter, and type in the shortcut, e.g. `luceus-perception`.
+
+To view a group, type `/group view`, press enter, enter the name of the group, e.g. `perception checks`, and hit enter. This will display all the rolls in the group, similar to the `shortcut list` command.
+
+To list all groups, type `/group list`, and hit enter. This will display all the groups you have created and the number of rolls in each group.
+
+To delete a group, type `/group delete`, press enter, enter the name of the group, e.g. `perception checks`, and hit enter.
+
+You can roll a group by simply typing `/roll <group-name>`. This will roll all the rolls in the group and display the results. Note that, if you wish to roll a group, the group name must be the only thing in the input, otherwise the roll will fail.
 
 ### Support
 
