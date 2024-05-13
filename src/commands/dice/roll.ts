@@ -18,7 +18,13 @@ import {
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
-import { chunkString, hasD20, rollDice, writeLog } from "../../util";
+import {
+  RollResult,
+  chunkString,
+  hasD20,
+  rollDice,
+  writeLog,
+} from "../../util";
 
 export class RollCommand extends Command {
   constructor(context: Command.LoaderContext, options: Command.Options) {
@@ -99,13 +105,13 @@ export class RollCommand extends Command {
     }
 
     try {
-      const roll = (await rollDice(
+      const roll = await rollDice(
         notation,
         interaction.user.id,
         interaction.guild?.id
-      )) as DiceRoll;
+      );
 
-      RollCommand.laugh(roll, interaction, display, secret);
+      RollCommand.laugh(roll.roll as DiceRoll, interaction, display, secret);
 
       return this.composeReply(interaction, roll, display, secret);
     } catch (err: any) {
@@ -165,20 +171,28 @@ export class RollCommand extends Command {
 
   private async composeReply(
     interaction: Command.ChatInputCommandInteraction,
-    roll: DiceRoll | DiceRoll[],
+    result: RollResult,
     output: string,
     secret: boolean | null = false
   ) {
+    const { roll, hasShortcut } = result;
     const author = interaction.user.toString();
-    let result: string;
+    let display: string;
     let gmChannel: TextChannel | null = null;
 
     if (output === "output") {
-      result = Array.isArray(roll)
-        ? roll.map((r) => r.output).join("\n")
+      // eslint-disable-next-line no-nested-ternary
+      display = Array.isArray(roll)
+        ? roll
+            .map((r) =>
+              hasShortcut ? `${r.originalNotation} => ${r.output}` : r.output
+            )
+            .join("\n")
+        : hasShortcut
+        ? `${roll.originalNotation} => ${roll.output}`
         : roll.output;
     } else {
-      result = Array.isArray(roll)
+      display = Array.isArray(roll)
         ? roll
             .map(
               (r) =>
@@ -192,7 +206,7 @@ export class RollCommand extends Command {
           }`;
     }
 
-    const reply = `${author}: ${result}`;
+    const reply = `${author}: ${display}`;
 
     if (secret) {
       gmChannel = await this.getGmChannel(interaction);
