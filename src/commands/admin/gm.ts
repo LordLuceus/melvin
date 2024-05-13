@@ -7,7 +7,7 @@ import {
 import { ChannelType, PermissionFlagsBits } from "discord.js";
 
 export class GMCommand extends Command {
-  constructor(context: Command.LoaderContext, options: Command.Options) {
+  public constructor(context: Command.LoaderContext, options: Command.Options) {
     super(context, {
       ...options,
       name: "gm",

@@ -58,6 +58,10 @@ export const rollDice = async (
   });
 
   if (group) {
+    if (group.rolls.length === 0) {
+      throw new Error("There are no rolls in this group.");
+    }
+
     const results = diceRoller.roll(
       ...group.rolls.map((r) => r.value)
     ) as DiceRoll[];
