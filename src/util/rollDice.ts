@@ -62,11 +62,11 @@ export const rollDice = async (
       throw new Error("There are no rolls in this group.");
     }
 
-    const results = diceRoller.roll(
-      ...group.rolls.map((r) => r.value)
-    ) as DiceRoll[];
+    const results = diceRoller.roll(...group.rolls.map((r) => r.value));
     return {
-      roll: results.map((r, i) => new ExtendedDiceRoll(r, group.rolls[i].name)),
+      roll: Array.isArray(results)
+        ? results.map((r, i) => new ExtendedDiceRoll(r, group.rolls[i].name))
+        : new ExtendedDiceRoll(results, group.rolls[0].name),
       hasShortcut: true,
     };
   }
