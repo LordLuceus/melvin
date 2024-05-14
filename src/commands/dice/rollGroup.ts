@@ -265,6 +265,13 @@ export class RollGroupCommand extends Subcommand {
       });
 
       if (!savedGroup) {
+        if (RollGroupCommand.hasSpecialCharacters(group)) {
+          return interaction.reply({
+            content: "A group name cannot contain any special characters.",
+            ephemeral: true,
+          });
+        }
+
         await prisma.rollGroup.create({
           data: {
             name: group,
@@ -463,6 +470,13 @@ export class RollGroupCommand extends Subcommand {
         });
       }
 
+      if (RollGroupCommand.hasSpecialCharacters(name)) {
+        return interaction.reply({
+          content: "A group name cannot contain any special characters.",
+          ephemeral: true,
+        });
+      }
+
       await prisma.rollGroup.create({
         data: {
           name,
@@ -472,7 +486,7 @@ export class RollGroupCommand extends Subcommand {
       });
 
       return interaction.reply({
-        content: `Created group \`${name}\`. Use the \`/add\` command to add roll shortcuts to the group.`,
+        content: `Created group \`${name}\`. Use the \`/group add\` command to add roll shortcuts to the group.`,
         ephemeral: true,
       });
     } catch (err: any) {
@@ -645,5 +659,10 @@ export class RollGroupCommand extends Subcommand {
     });
 
     return savedGuild;
+  }
+
+  private static hasSpecialCharacters(name: string): boolean {
+    const regex = /[^a-zA-Z0-9-_ ]/g;
+    return regex.test(name);
   }
 }
