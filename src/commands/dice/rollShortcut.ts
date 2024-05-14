@@ -182,10 +182,10 @@ export class RollShortcutCommand extends Subcommand {
           });
         }
 
-        const regex = /\s+/;
+        const regex = /[^a-zA-Z0-9-_ ]/g;
         if (regex.test(name)) {
           return interaction.reply({
-            content: "A roll shortcut cannot contain any spaces.",
+            content: "A roll shortcut cannot contain any special characters.",
             ephemeral: true,
           });
         }
