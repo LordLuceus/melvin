@@ -21,8 +21,12 @@ RUN npm run build
 
 FROM node:20-alpine
 
+# Install dependencies
+RUN apk add --no-cache ffmpeg
+
 ENV NODE_ENV=production
 
+COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
