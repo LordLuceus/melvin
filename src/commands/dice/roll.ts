@@ -111,7 +111,7 @@ export class RollCommand extends Command {
         interaction.guild?.id
       );
 
-      RollCommand.laugh(roll.roll as DiceRoll, interaction, display, secret);
+      this.laugh(roll.roll as DiceRoll, interaction, display, secret);
 
       return this.composeReply(interaction, roll, display, secret);
     } catch (err: any) {
@@ -119,13 +119,21 @@ export class RollCommand extends Command {
     }
   }
 
-  private static laugh(
+  private async laugh(
     roll: DiceRoll,
     interaction: Command.ChatInputCommandInteraction,
     output: string,
     secret: boolean | null
   ) {
-    if (output !== "output" || secret) return;
+    if (output !== "output" || secret || !interaction.guild) return;
+
+    const { prisma } = this.container;
+
+    const guild = await prisma.guild.findUnique({
+      where: { id: interaction.guild.id },
+    });
+
+    if (!guild?.laugh) return;
 
     if (hasD20(roll.notation)) {
       const result = (roll.rolls[0] as RollResults).value;

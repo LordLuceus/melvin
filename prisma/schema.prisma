@@ -10,6 +10,7 @@ datasource db {
 model guild {
   id         String      @id(map: "PK_cfbbd0a2805cab7053b516068a3") @db.VarChar(20)
   gmChannel  String?     @db.VarChar(20)
+  laugh      Boolean     @default(false)
   rolls      roll[]
   users      user[]
   rollGroups RollGroup[]
