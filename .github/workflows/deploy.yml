@@ -63,7 +63,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
-          port: ${{ secrets.SSH_PORT }}
+          port: ${{ secrets.SERVER_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
           script_stop: true
