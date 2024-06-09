@@ -1,6 +1,6 @@
 services:
   melvin:
-    image: ghcr.io/lordluceus/melvin:latest
+    image: ghcr.io/lordluceus/melvin:master
     depends_on:
       - db
     restart: on-failure

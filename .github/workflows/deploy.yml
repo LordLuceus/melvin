@@ -69,5 +69,5 @@ jobs:
           script_stop: true
           script: |
             docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            docker pull ${{ env.REGISTRY }}/lordluceus/melvin:master
             sudo systemctl restart melvin
