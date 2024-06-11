@@ -3,13 +3,14 @@ services:
     image: ghcr.io/lordluceus/melvin:master
     depends_on:
       - db
-    restart: on-failure
+    restart: unless-stopped
     container_name: melvin
     env_file:
       - .env
 
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     container_name: melvin_db
     hostname: postgres
     ports:

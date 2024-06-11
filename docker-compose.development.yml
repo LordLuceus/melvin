@@ -5,8 +5,12 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - db
-    restart: on-failure
+    restart: unless-stopped
     container_name: melvin
+    volumes:
+      - type: bind
+        source: ./
+        target: /app
     env_file:
       - .env
 

@@ -1,10 +1,10 @@
-FROM node:20-alpine as builder
+FROM node:20-slim as builder
 
 # Set the working directory
 WORKDIR /app
 
 # Install dependencies
-RUN apk add --no-cache python3 make g++ libtool autoconf automake
+RUN apt-get update && apt-get install -y python3 make g++ libtool autoconf automake
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
@@ -19,16 +19,23 @@ COPY . .
 # Build the application
 RUN npm run build
 
-FROM node:20-alpine
+RUN npm prune --production
+
+FROM node:20-slim
 
 WORKDIR /app
 
 # Install dependencies
-RUN apk add --no-cache ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
 
 ENV NODE_ENV=production
 
-COPY --from=builder /app ./
+COPY --from=builder /app/assets ./assets/
+COPY --from=builder /app/dist ./dist/
+COPY --from=builder /app/node_modules ./node_modules/
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma/
+COPY --from=builder /app/run.sh ./run.sh
 
 # Start the bot
 CMD ["./run.sh"]
