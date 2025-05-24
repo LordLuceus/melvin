@@ -1,4 +1,4 @@
-FROM node:20-slim as builder
+FROM node:22-slim as builder
 
 # Set the working directory
 WORKDIR /app
@@ -21,7 +21,7 @@ RUN npm run build
 
 RUN npm prune --production
 
-FROM node:20-slim
+FROM node:22-slim
 
 WORKDIR /app
 
