@@ -5,21 +5,22 @@ WORKDIR /app
 
 # Install dependencies
 RUN apt-get update && apt-get install -y python3 make g++ libtool autoconf automake
+RUN npm install -g pnpm
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# Copy package.json
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY prisma ./prisma/
 
 # Install dependencies
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the application code to the working directory
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
-RUN npm prune --production
+RUN pnpm prune --production
 
 FROM node:22-slim
 
