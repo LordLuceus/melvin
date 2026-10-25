@@ -1,4 +1,4 @@
-FROM node:22-slim as builder
+FROM node:22.23.4-slim as builder
 
 # Set the working directory
 WORKDIR /app
@@ -22,7 +22,7 @@ RUN pnpm run build
 
 RUN pnpm prune --production
 
-FROM node:22-slim
+FROM node:22.23.4-slim
 
 WORKDIR /app
 
