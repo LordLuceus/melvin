@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install dependencies
 RUN apt-get update && apt-get install -y python3 make g++ libtool autoconf automake
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11
 
 # Copy package.json
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
